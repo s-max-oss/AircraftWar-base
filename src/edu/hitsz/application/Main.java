@@ -26,9 +26,9 @@ public class Main {
                 WINDOW_WIDTH, WINDOW_HEIGHT);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        Game game = new Game();
-        frame.add(game);
+        // 显示主菜单
+        MainMenuPanel mainMenuPanel = new MainMenuPanel(frame);
+        frame.add(mainMenuPanel);
         frame.setVisible(true);
-        game.action();
     }
 }

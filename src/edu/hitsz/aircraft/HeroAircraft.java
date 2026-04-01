@@ -51,8 +51,24 @@ public class HeroAircraft extends AbstractAircraft {
     }
 
     // 重置英雄机（游戏重新开始时使用）
-    public static synchronized void reset() {
+    public static synchronized void resetInstance() {
         instance = null;
+    }
+    
+    /**
+     * 重置英雄机状态
+     */
+    public void reset() {
+        // 重置位置
+        locationX = Main.WINDOW_WIDTH / 2;
+        locationY = Main.WINDOW_HEIGHT - 100;
+        // 重置生命值
+        hp = maxHp;
+        // 重置子弹数量和威力
+        shootNum = 1;
+        power = 30;
+        // 重置有效状态
+        isValid = true;
     }
 
     public void increasePower(int increase){

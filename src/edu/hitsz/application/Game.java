@@ -31,6 +31,13 @@ public class Game extends JPanel {
     private final List<BaseBullet> heroBullets;
     private final List<BaseBullet> enemyBullets;
     private final List<AbstractFlyingObject> drops;
+    
+    // 父窗口
+    private JFrame parentFrame;
+    // 游戏开始时间
+    private long gameStartTime;
+    // 敌机击杀数
+    private int enemiesKilled;
 
     //屏幕中出现的敌机最大数量
     private final int enemyMaxNumber = 10;
@@ -82,9 +89,17 @@ public class Game extends JPanel {
     //当前冻结剩余时间
     private int freezeTimer = 0;
 
-    public Game() {
+    public Game(JFrame frame) {
+        this.parentFrame = frame;
+        // 记录游戏开始时间
+        this.gameStartTime = System.currentTimeMillis();
+        // 初始化敌机击杀数
+        this.enemiesKilled = 0;
+        
         // 使用单例模式获取英雄机实例
         heroAircraft = HeroAircraft.getInstance();
+        // 重置英雄机状态
+        heroAircraft.reset();
 
         enemyAircrafts = new LinkedList<>();
         heroBullets = new LinkedList<>();
@@ -321,6 +336,8 @@ public class Game extends JPanel {
                     if (enemyAircraft.notValid()) {
                         // 获得分数
                         score += 10;
+                        // 增加敌机击杀数
+                        enemiesKilled++;
                         // 产生道具补给
                         drops.addAll(enemyAircraft.drop());
                     }
@@ -383,6 +400,16 @@ public class Game extends JPanel {
             timer.cancel(); // 取消定时器并终止所有调度任务
             gameOverFlag = true;
             System.out.println("Game Over!");
+            
+            // 计算游戏时间
+            long gameTime = System.currentTimeMillis() - gameStartTime;
+            
+            // 显示游戏结束面板
+            parentFrame.getContentPane().removeAll();
+            GameOverPanel gameOverPanel = new GameOverPanel(parentFrame, enemiesKilled, score, gameTime);
+            parentFrame.add(gameOverPanel);
+            parentFrame.revalidate();
+            parentFrame.repaint();
         }
     };
     
