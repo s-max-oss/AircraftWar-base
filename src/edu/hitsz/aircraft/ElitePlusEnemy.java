@@ -5,6 +5,8 @@ import edu.hitsz.bullet.BaseBullet;
 import edu.hitsz.bullet.EnemyBullet;
 import edu.hitsz.basic.AbstractFlyingObject;
 import edu.hitsz.drop.Drop;
+import edu.hitsz.drop.factory.DropFactory;
+import edu.hitsz.drop.factory.DropFactoryManager;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -20,7 +22,7 @@ public class ElitePlusEnemy extends EnemyAircraft {
     private int shootNum = 1;
 
     //子弹威力
-    private int power = 40;
+    private int power = 50;
 
     //子弹射击方向 (向上发射：-1，向下发射：1)
     private int direction = 1;
@@ -66,9 +68,23 @@ public class ElitePlusEnemy extends EnemyAircraft {
         int speedX = 0;
         int speedY = this.getSpeedY();
         
-        // 80%的概率掉落Hp道具
-        if (Math.random() < 0.8) {
-            res.add(new edu.hitsz.drop.Hp(x, y, speedX, speedY + 2));
+        // 25%的概率掉落AddBulletPlus道具
+        if (Math.random() < 0.25) {
+            // 使用工厂模式创建道具
+            DropFactory factory = DropFactoryManager.getFactory("AddBulletPlus");
+            res.add(factory.createDrop(x, y, speedX, speedY + 2));
+        } else if (Math.random() < 0.5) {
+            // 使用工厂模式创建道具
+            DropFactory factory = DropFactoryManager.getFactory("AddBullet");
+            res.add(factory.createDrop(x, y, speedX, speedY + 2));
+        } else if (Math.random() < 0.75) {
+            // 使用工厂模式创建道具
+            DropFactory factory = DropFactoryManager.getFactory("Hp");
+            res.add(factory.createDrop(x, y, speedX, speedY + 2));
+        } else {
+            // 使用工厂模式创建道具
+            DropFactory factory = DropFactoryManager.getFactory("Bomb");
+            res.add(factory.createDrop(x, y, speedX, speedY + 2));
         }
         
         return res;

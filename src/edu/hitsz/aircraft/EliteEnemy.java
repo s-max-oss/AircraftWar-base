@@ -5,7 +5,8 @@ import edu.hitsz.bullet.BaseBullet;
 import edu.hitsz.bullet.EnemyBullet;
 import edu.hitsz.basic.AbstractFlyingObject;
 import edu.hitsz.drop.Drop;
-
+import edu.hitsz.drop.factory.DropFactory;
+import edu.hitsz.drop.factory.DropFactoryManager;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -61,6 +62,17 @@ public class EliteEnemy extends EnemyAircraft {
      * @return 掉落物List
      */
     public List<Drop> drop() {
-        return new LinkedList<>();
+        List <Drop> res = new LinkedList<>();
+        int x = this.getLocationX();
+        int y = this.getLocationY();
+        int speedX = 0;
+        int speedY = this.getSpeedY();
+        // 80%的概率掉落AddBullet道具
+        if (Math.random() < 0.8) {
+            // 使用工厂模式创建道具
+            DropFactory factory = DropFactoryManager.getFactory("Hp");
+            res.add(factory.createDrop(x, y, speedX, speedY + 2));
+        }
+        return res;
     }
 }

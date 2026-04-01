@@ -1,6 +1,7 @@
 package edu.hitsz.application;
 
 import edu.hitsz.aircraft.*;
+import edu.hitsz.aircraft.factory.*;
 import edu.hitsz.bullet.BaseBullet;
 import edu.hitsz.basic.AbstractFlyingObject;
 
@@ -105,12 +106,10 @@ public class Game extends JPanel {
                     enemySpawnCounter = 0;
                     // 产生普通敌机
                     if (enemyAircrafts.size() < enemyMaxNumber) {
-                        enemyAircrafts.add(new MobEnemy(
+                        EnemyAircraftFactory factory = EnemyAircraftFactoryManager.getFactory("MobEnemy");
+                        enemyAircrafts.add(factory.createAircraft(
                                 (int) (Math.random() * (Main.WINDOW_WIDTH - ImageManager.MOB_ENEMY_IMAGE.getWidth())),
-                                0, // 在屏幕最上方生成
-                                0,
-                                2 + (int) (Math.random() * 3), // 纵向速度2-4
-                                30
+                                0 // 在屏幕最上方生成
                         ));
                     }
                 }
@@ -128,12 +127,10 @@ public class Game extends JPanel {
                     }
                     // 产生精英敌机
                     if (eliteEnemyCount < eliteEnemyMaxNumber) {
-                        enemyAircrafts.add(new EliteEnemy(
+                        EnemyAircraftFactory factory = EnemyAircraftFactoryManager.getFactory("EliteEnemy");
+                        enemyAircrafts.add(factory.createAircraft(
                                 (int) (Math.random() * (Main.WINDOW_WIDTH - ImageManager.ELITE_ENEMY_IMAGE.getWidth())),
-                                0, // 在屏幕最上方生成
-                                (int) (Math.random() * 3), // 横向速度（0-2之间的随机整数）
-                                3 + (int) (Math.random() * 3), // 纵向速度3-5
-                                60 // 生命值
+                                0 // 在屏幕最上方生成
                         ));
                     }
                 }
@@ -149,12 +146,10 @@ public class Game extends JPanel {
                     }
                     // 产生高级精英敌机
                     if (elitePlusEnemyCount < elitePlusEnemyMaxNumber) {
-                        enemyAircrafts.add(new ElitePlusEnemy(
+                        EnemyAircraftFactory factory = EnemyAircraftFactoryManager.getFactory("ElitePlusEnemy");
+                        enemyAircrafts.add(factory.createAircraft(
                                 (int) (Math.random() * (Main.WINDOW_WIDTH - ImageManager.ELITE_PLUS_ENEMY_IMAGE.getWidth())),
-                                0, // 在屏幕最上方生成
-                                (int) (Math.random() * 4), // 横向速度（0-3之间的随机整数）
-                                4 + (int) (Math.random() * 3), // 纵向速度4-6
-                                100 // 生命值
+                                0 // 在屏幕最上方生成
                         ));
                     }
                 }
@@ -171,12 +166,10 @@ public class Game extends JPanel {
                     }
                     // 产生专业精英敌机
                     if (eliteProEnemyCount < eliteProEnemyMaxNumber) {
-                        enemyAircrafts.add(new EliteProEnemy(
+                        EnemyAircraftFactory factory = EnemyAircraftFactoryManager.getFactory("EliteProEnemy");
+                        enemyAircrafts.add(factory.createAircraft(
                                 (int) (Math.random() * (Main.WINDOW_WIDTH - ImageManager.ELITE_PRO_ENEMY_IMAGE.getWidth())),
-                                0, // 在屏幕最上方生成
-                                (int) (Math.random() * 4), // 横向速度（0-3之间的随机整数）
-                                3 + (int) (Math.random() * 3), // 纵向速度3-5
-                                120 // 生命值
+                                0 // 在屏幕最上方生成
                         ));
                     }
                 }
@@ -192,12 +185,10 @@ public class Game extends JPanel {
                     }
                     // 产生Boss敌机
                     if (bossSpawnCount < bossMaxNumber) {
-                        enemyAircrafts.add(new Boss(
+                        EnemyAircraftFactory factory = EnemyAircraftFactoryManager.getFactory("Boss");
+                        enemyAircrafts.add(factory.createAircraft(
                                 (int) (Math.random() * (Main.WINDOW_WIDTH - ImageManager.ELITE_PRO_ENEMY_IMAGE.getWidth())),
-                                0, // 在屏幕最上方生成
-                                (int) (Math.random() * 4), // 横向速度（0-3之间的随机整数）
-                                0, // 纵向速度3-5
-                                300 // 生命值
+                                0 // 在屏幕最上方生成
                         ));
                     }
                 }

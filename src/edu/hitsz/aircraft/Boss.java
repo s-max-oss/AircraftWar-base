@@ -4,6 +4,8 @@ import edu.hitsz.application.Main;
 import edu.hitsz.bullet.BaseBullet;
 import edu.hitsz.bullet.EnemyBullet;
 import edu.hitsz.drop.Drop;
+import edu.hitsz.drop.factory.DropFactory;
+import edu.hitsz.drop.factory.DropFactoryManager;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -54,6 +56,36 @@ public class Boss extends EnemyAircraft{
      */
     public List<Drop> drop() {
         List <Drop> res = new LinkedList<>();
+        int x = this.getLocationX();
+        int y = this.getLocationY();
+        int speedX = 0;
+        int speedY = this.getSpeedY();
+        // 50%的概率掉落Bomb道具
+        if (Math.random() < 0.2) {
+            // 使用工厂模式创建道具
+            DropFactory factory = DropFactoryManager.getFactory("Bomb");
+            res.add(factory.createDrop(x, y, speedX, speedY + 2));
+        }
+        else if (Math.random() < 0.4) {
+            // 使用工厂模式创建道具
+            DropFactory factory = DropFactoryManager.getFactory("Freeze");
+            res.add(factory.createDrop(x, y, speedX, speedY + 2));
+        }
+        else if (Math.random() < 0.6) {
+            // 使用工厂模式创建道具
+            DropFactory factory = DropFactoryManager.getFactory("AddBullet");
+            res.add(factory.createDrop(x, y, speedX, speedY + 2));
+        }
+        else if (Math.random() < 0.8) {
+            // 使用工厂模式创建道具
+            DropFactory factory = DropFactoryManager.getFactory("Hp");
+            res.add(factory.createDrop(x, y, speedX, speedY + 2));
+        }
+        else {
+            // 使用工厂模式创建道具
+            DropFactory factory = DropFactoryManager.getFactory("Bomb");
+            res.add(factory.createDrop(x, y, speedX, speedY + 2));
+        }
         return res;
     }
 }
