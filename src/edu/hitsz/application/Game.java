@@ -40,11 +40,11 @@ public class Game extends JPanel {
     private int enemiesKilled;
 
     //屏幕中出现的敌机最大数量
-    private final int enemyMaxNumber = 10;
+    private int enemyMaxNumber = 10;
     //屏幕中出现的精英敌机最大数量
-    private final int eliteEnemyMaxNumber = 5;
+    private int eliteEnemyMaxNumber = 5;
     //屏幕中出现的高级精英敌机最大数量
-    private final int elitePlusEnemyMaxNumber = 2;
+    private int elitePlusEnemyMaxNumber = 2;
     //屏幕中出现的专业精英敌机最大数量
     private final int eliteProEnemyMaxNumber = 1;
     //屏幕中出现的boss敌机最大数量
@@ -88,6 +88,15 @@ public class Game extends JPanel {
     private int freezeDuration = 30;
     //当前冻结剩余时间
     private int freezeTimer = 0;
+    
+    // 难度等级
+    private int difficultyLevel = 1;
+    // 基础攻击力
+    private int baseEnemyPower = 40;
+    // 基础移动速度系数
+    private double baseSpeedFactor = 1.0;
+    // 背景图片索引
+    private int backgroundIndex = 0;
 
     public Game(JFrame frame) {
         this.parentFrame = frame;
@@ -122,17 +131,23 @@ public class Game extends JPanel {
         TimerTask task = new TimerTask() {
             @Override
             public void run() {
+                // 计算游戏时间（秒）
+                long gameTime = (System.currentTimeMillis() - gameStartTime) / 1000;
+                
+                // 根据游戏时间调整难度等级
+                updateDifficultyLevel(gameTime);
 
                 enemySpawnCounter++;
                 if (enemySpawnCounter >=enemySpawnCycle) {
                     enemySpawnCounter = 0;
                     // 产生普通敌机
                     if (enemyAircrafts.size() < enemyMaxNumber) {
+                        // 随机生成敌机位置
+                        int x = (int) (Math.random() * (Main.WINDOW_WIDTH - ImageManager.MOB_ENEMY_IMAGE.getWidth()));
+                        int y = 0;
+                        // 使用工厂模式创建普通敌机
                         EnemyAircraftFactory factory = EnemyAircraftFactoryManager.getFactory("MobEnemy");
-                        enemyAircrafts.add(factory.createAircraft(
-                                (int) (Math.random() * (Main.WINDOW_WIDTH - ImageManager.MOB_ENEMY_IMAGE.getWidth())),
-                                0 // 在屏幕最上方生成
-                        ));
+                        enemyAircrafts.add(factory.createAircraft(x, y, difficultyLevel));
                     }
                 }
 
@@ -149,11 +164,12 @@ public class Game extends JPanel {
                     }
                     // 产生精英敌机
                     if (eliteEnemyCount < eliteEnemyMaxNumber) {
+                        // 随机生成敌机位置
+                        int x = (int) (Math.random() * (Main.WINDOW_WIDTH - ImageManager.ELITE_ENEMY_IMAGE.getWidth()));
+                        int y = 0;
+                        // 使用工厂模式创建精英敌机
                         EnemyAircraftFactory factory = EnemyAircraftFactoryManager.getFactory("EliteEnemy");
-                        enemyAircrafts.add(factory.createAircraft(
-                                (int) (Math.random() * (Main.WINDOW_WIDTH - ImageManager.ELITE_ENEMY_IMAGE.getWidth())),
-                                0 // 在屏幕最上方生成
-                        ));
+                        enemyAircrafts.add(factory.createAircraft(x, y, difficultyLevel));
                     }
                 }
                 // 生成高级精英敌机
@@ -168,11 +184,12 @@ public class Game extends JPanel {
                     }
                     // 产生高级精英敌机
                     if (elitePlusEnemyCount < elitePlusEnemyMaxNumber) {
+                        // 随机生成敌机位置
+                        int x = (int) (Math.random() * (Main.WINDOW_WIDTH - ImageManager.ELITE_PLUS_ENEMY_IMAGE.getWidth()));
+                        int y = 0;
+                        // 使用工厂模式创建高级精英敌机
                         EnemyAircraftFactory factory = EnemyAircraftFactoryManager.getFactory("ElitePlusEnemy");
-                        enemyAircrafts.add(factory.createAircraft(
-                                (int) (Math.random() * (Main.WINDOW_WIDTH - ImageManager.ELITE_PLUS_ENEMY_IMAGE.getWidth())),
-                                0 // 在屏幕最上方生成
-                        ));
+                        enemyAircrafts.add(factory.createAircraft(x, y, difficultyLevel));
                     }
                 }
 
@@ -188,30 +205,35 @@ public class Game extends JPanel {
                     }
                     // 产生专业精英敌机
                     if (eliteProEnemyCount < eliteProEnemyMaxNumber) {
+                        // 随机生成敌机位置
+                        int x = (int) (Math.random() * (Main.WINDOW_WIDTH - ImageManager.ELITE_PRO_ENEMY_IMAGE.getWidth()));
+                        int y = 0;
+                        // 使用工厂模式创建专业精英敌机
                         EnemyAircraftFactory factory = EnemyAircraftFactoryManager.getFactory("EliteProEnemy");
-                        enemyAircrafts.add(factory.createAircraft(
-                                (int) (Math.random() * (Main.WINDOW_WIDTH - ImageManager.ELITE_PRO_ENEMY_IMAGE.getWidth())),
-                                0 // 在屏幕最上方生成
-                        ));
+                        enemyAircrafts.add(factory.createAircraft(x, y, difficultyLevel));
                     }
                 }
 
-                bossSpawnCounter++;
-                if (bossSpawnCounter >= bossSpawnCycle) {
-                    bossSpawnCounter = 0;
-                    int bossSpawnCount = 0;
-                    for (AbstractAircraft aircraft : enemyAircrafts){
-                        if (aircraft instanceof Boss){
-                            bossSpawnCount++;
+                // 生成Boss敌机（30秒后才开始生成）
+                if (gameTime >= 30) {
+                    bossSpawnCounter++;
+                    if (bossSpawnCounter >= bossSpawnCycle) {
+                        bossSpawnCounter = 0;
+                        int bossSpawnCount = 0;
+                        for (AbstractAircraft aircraft : enemyAircrafts){
+                            if (aircraft instanceof Boss){
+                                bossSpawnCount++;
+                            }
                         }
-                    }
-                    // 产生Boss敌机
-                    if (bossSpawnCount < bossMaxNumber) {
+                        // 产生Boss敌机
+                        if (bossSpawnCount < bossMaxNumber) {
+                            // 随机生成敌机位置
+                        int x = (int) (Math.random() * (Main.WINDOW_WIDTH - ImageManager.ELITE_PRO_ENEMY_IMAGE.getWidth()));
+                        int y = 0;
+                        // 使用工厂模式创建Boss敌机
                         EnemyAircraftFactory factory = EnemyAircraftFactoryManager.getFactory("Boss");
-                        enemyAircrafts.add(factory.createAircraft(
-                                (int) (Math.random() * (Main.WINDOW_WIDTH - ImageManager.ELITE_PRO_ENEMY_IMAGE.getWidth())),
-                                0 // 在屏幕最上方生成
-                        ));
+                        enemyAircrafts.add(factory.createAircraft(x, y, difficultyLevel));
+                        }
                     }
                 }
 
@@ -258,7 +280,15 @@ public class Game extends JPanel {
             shootEnemyCounter = 0;
             //敌机射击
             for (AbstractAircraft enemyAircraft : enemyAircrafts) {
-                enemyBullets.addAll(enemyAircraft.shoot());
+                List<BaseBullet> bullets = enemyAircraft.shoot();
+                // 根据难度等级调整子弹威力
+                for (BaseBullet bullet : bullets) {
+                    // 调整子弹威力（根据难度等级增加）
+                    int originalPower = bullet.getPower();
+                    int newPower = originalPower + (difficultyLevel - 1) * 10;
+                    bullet.setPower(newPower);
+                }
+                enemyBullets.addAll(bullets);
             }
         }
     }
@@ -430,6 +460,88 @@ public class Game extends JPanel {
         enemyFrozen = true;
         freezeTimer = freezeDuration;
     }
+    
+    /**
+     * 根据游戏时间更新难度等级
+     */
+    private void updateDifficultyLevel(long gameTime) {
+        int newLevel = 1;
+        int newBackgroundIndex = 0;
+        
+        // 根据游戏时间确定难度等级
+        if (gameTime < 30) {
+            // 30秒以内，难度等级1
+            newLevel = 1;
+            newBackgroundIndex = 0;
+        } else if (gameTime < 120) {
+            // 30秒到2分钟，难度等级2
+            newLevel = 2;
+            newBackgroundIndex = 1;
+        } else if (gameTime < 300) {
+            // 2分钟到5分钟，难度等级3
+            newLevel = 3;
+            newBackgroundIndex = 2;
+        } else if (gameTime < 540) {
+            // 5分钟到9分钟，难度等级4
+            newLevel = 4;
+            newBackgroundIndex = 3;
+        } else {
+            // 超过9分钟，难度等级5
+            newLevel = 5;
+            newBackgroundIndex = 4;
+        }
+        
+        // 如果难度等级发生变化
+        if (newLevel != difficultyLevel) {
+            difficultyLevel = newLevel;
+            
+            // 根据难度等级调整属性
+            switch (difficultyLevel) {
+                case 1:
+                    // 难度等级1：基础设置
+                    baseEnemyPower = 40;
+                    baseSpeedFactor = 1.0;
+                    break;
+                case 2:
+                    // 难度等级2：攻击力+10，速度+10%
+                    baseEnemyPower = 50;
+                    baseSpeedFactor = 1.1;
+                    break;
+                case 3:
+                    // 难度等级3：最大数量+1，攻击力+10
+                    baseEnemyPower = 60;
+                    baseSpeedFactor = 1.1;
+                    // 增加敌机最大数量
+                    enemyMaxNumber++;
+                    eliteEnemyMaxNumber++;
+                    elitePlusEnemyMaxNumber++;
+                    break;
+                case 4:
+                    // 难度等级4：最大数量+1，攻击力+10
+                    baseEnemyPower = 70;
+                    baseSpeedFactor = 1.1;
+                    // 增加敌机最大数量
+                    enemyMaxNumber++;
+                    eliteEnemyMaxNumber++;
+                    elitePlusEnemyMaxNumber++;
+                    break;
+                case 5:
+                    // 难度等级5：最大数量+1，攻击力+10，速度+25%
+                    baseEnemyPower = 80;
+                    baseSpeedFactor = 1.25;
+                    // 增加敌机最大数量
+                    enemyMaxNumber++;
+                    eliteEnemyMaxNumber++;
+                    elitePlusEnemyMaxNumber++;
+                    break;
+            }
+        }
+        
+        // 如果背景索引发生变化
+        if (newBackgroundIndex != backgroundIndex) {
+            backgroundIndex = newBackgroundIndex;
+        }
+    }
 
     //***********************
     //      Paint 各部分
@@ -443,8 +555,9 @@ public class Game extends JPanel {
         super.paint(g);
 
         // 绘制背景,图片滚动
-        g.drawImage(ImageManager.BACKGROUND_IMAGE, 0, this.backGroundTop - Main.WINDOW_HEIGHT, null);
-        g.drawImage(ImageManager.BACKGROUND_IMAGE, 0, this.backGroundTop, null);
+        Image backgroundImage = getBackgroundImage();
+        g.drawImage(backgroundImage, 0, this.backGroundTop - Main.WINDOW_HEIGHT, null);
+        g.drawImage(backgroundImage, 0, this.backGroundTop, null);
         this.backGroundTop += 1;
         if (this.backGroundTop == Main.WINDOW_HEIGHT) {
             this.backGroundTop = 0;
@@ -464,7 +577,37 @@ public class Game extends JPanel {
 
         //绘制得分和生命值
         paintScoreAndLife(g);
+        
+        // 绘制难度等级
+        paintDifficultyLevel(g);
 
+    }
+    
+    /**
+     * 根据背景索引获取背景图片
+     */
+    private Image getBackgroundImage() {
+        switch (backgroundIndex) {
+            case 1:
+                return ImageManager.BACKGROUND_IMAGE;
+            case 2:
+                return ImageManager.BACKGROUND_IMAGE;
+            case 3:
+                return ImageManager.BACKGROUND_IMAGE;
+            case 4:
+                return ImageManager.BACKGROUND_IMAGE;
+            default:
+                return ImageManager.BACKGROUND_IMAGE;
+        }
+    }
+    
+    /**
+     * 绘制难度等级
+     */
+    private void paintDifficultyLevel(Graphics g) {
+        g.setColor(Color.WHITE);
+        g.setFont(new Font("宋体", Font.BOLD, 15));
+        g.drawString("难度等级: " + difficultyLevel, 10, 60);
     }
 
     private void paintImageWithPositionRevised(Graphics g, List<? extends AbstractFlyingObject> objects) {
