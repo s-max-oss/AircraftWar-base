@@ -1,0 +1,122 @@
+@startuml
+
+' 新的类层次结构 UML 图
+
+' 定义包
+package "edu.hitsz.basic" {
+    abstract class AbstractFlyingObject {
+        - locationX: int
+        - locationY: int
+        - speedX: int
+        - speedY: int
+        - image: BufferedImage
+        - width: int
+        - height: int
+        - isValid: boolean
+        + forward(): void
+        + crash(flyingObject: AbstractFlyingObject): boolean
+        + getLocationX(): int
+        + getLocationY(): int
+        + setLocation(locationX: double, locationY: double): void
+        + getSpeedY(): int
+        + getImage(): BufferedImage
+        + getWidth(): int
+        + getHeight(): int
+        + vanish(): void
+        + notValid(): boolean
+    }
+}
+
+package "edu.hitsz.aircraft" {
+    abstract class AbstractAircraft extends AbstractFlyingObject {
+        - maxHp: int
+        - hp: int
+        + decreaseHp(decrease: int): void
+        + increaseHp(increase: int): void
+        + getHp(): int
+        + shoot(): List<BaseBullet>
+        + drop(): List<AbstractFlyingObject>
+    }
+    
+    class HeroAircraft extends AbstractAircraft {
+        - static volatile instance: HeroAircraft
+        - shootNum: int
+        - power: int
+        - direction: int
+        - private HeroAircraft(locationX: int, locationY: int, speedX: int, speedY: int, hp: int)
+        + static getInstance(): HeroAircraft
+        + static reset(): void
+        + increaseShootNum(increase: int): void
+        + setShootNumTo(aim: int): void
+        + increasePower(increase: int): void
+        + setPowerTo(aim: int): void
+        + forward(): void
+        + shoot(): List<BaseBullet>
+    }
+    
+    abstract class EnemyAircraft extends AbstractAircraft {
+        + EnemyAircraft(locationX: int, locationY: int, speedX: int, speedY: int, hp: int)
+        + forward(): void
+        + shoot(): List<BaseBullet>
+    }
+    
+    class MobEnemy extends EnemyAircraft {
+        + MobEnemy(locationX: int, locationY: int, speedX: int, speedY: int, hp: int)
+        + forward(): void
+        + shoot(): List<BaseBullet>
+    }
+    
+    class EliteEnemy extends EnemyAircraft {
+        - shootNum: int
+        - power: int
+        - direction: int
+        + EliteEnemy(locationX: int, locationY: int, speedX: int, speedY: int, hp: int)
+        + forward(): void
+        + shoot(): List<BaseBullet>
+        + drop(): List<AbstractFlyingObject>
+    }
+    
+    class ElitePlusEnemy extends EnemyAircraft {
+        - shootNum: int
+        - power: int
+        - direction: int
+        + ElitePlusEnemy(locationX: int, locationY: int, speedX: int, speedY: int, hp: int)
+        + forward(): void
+        + shoot(): List<BaseBullet>
+        + drop(): List<AbstractFlyingObject>
+    }
+}
+
+package "edu.hitsz.drop" {
+    abstract class Drop extends AbstractFlyingObject {
+        + Drop(locationX: int, locationY: int, speedX: int, speedY: int)
+        + forward(): void
+        + activate(heroAircraft: HeroAircraft): void
+    }
+    
+    class Hp extends Drop {
+        - restoreHp: int
+        + Hp(locationX: int, locationY: int, speedX: int, speedY: int)
+        + activate(heroAircraft: HeroAircraft): void
+        + getRestoreHp(): int
+    }
+}
+
+package "edu.hitsz.bullet" {
+    abstract class BaseBullet extends AbstractFlyingObject {
+        - power: int
+        + BaseBullet(locationX: int, locationY: int, speedX: int, speedY: int, power: int)
+        + forward(): void
+        + getPower(): int
+    }
+    
+    class HeroBullet extends BaseBullet {
+        + HeroBullet(locationX: int, locationY: int, speedX: int, speedY: int, power: int)
+    }
+    
+    class EnemyBullet extends BaseBullet {
+        + EnemyBullet(locationX: int, locationY: int, speedX: int, speedY: int, power: int)
+    }
+}
+
+@enduml
