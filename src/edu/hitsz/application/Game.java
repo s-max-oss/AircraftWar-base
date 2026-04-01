@@ -74,6 +74,13 @@ public class Game extends JPanel {
 
     //游戏结束标志
     private boolean gameOverFlag = false;
+    
+    //敌机冻结标志
+    private boolean enemyFrozen = false;
+    //冻结持续时间（帧数）
+    private int freezeDuration = 30;
+    //当前冻结剩余时间
+    private int freezeTimer = 0;
 
     public Game() {
         // 使用单例模式获取英雄机实例
@@ -251,6 +258,16 @@ public class Game extends JPanel {
     }
 
     private void aircraftsMoveAction() {
+        // 处理冻结逻辑
+        if (enemyFrozen) {
+            freezeTimer--;
+            if (freezeTimer <= 0) {
+                enemyFrozen = false;
+            }
+            // 冻结时敌机不移动
+            return;
+        }
+        
         for (AbstractAircraft enemyAircraft : enemyAircrafts) {
             enemyAircraft.forward();
         }
@@ -330,6 +347,15 @@ public class Game extends JPanel {
                 if (drop instanceof edu.hitsz.drop.AddBullet){
                     ((edu.hitsz.drop.AddBullet) drop).activate(heroAircraft);
                 }
+                if (drop instanceof edu.hitsz.drop.AddBulletPlus){
+                    ((edu.hitsz.drop.AddBulletPlus) drop).activate(heroAircraft);
+                }
+                if (drop instanceof edu.hitsz.drop.Bomb){
+                    ((edu.hitsz.drop.Bomb) drop).activate(heroAircraft, this);
+                }
+                if (drop instanceof edu.hitsz.drop.Freeze){
+                    ((edu.hitsz.drop.Freeze) drop).activate(heroAircraft, this);
+                }
             }
         }
 
@@ -359,6 +385,24 @@ public class Game extends JPanel {
             System.out.println("Game Over!");
         }
     };
+    
+    /**
+     * 清除所有敌机和敌机子弹（炸弹道具效果）
+     */
+    public void clearEnemiesAndBullets() {
+        // 清除所有敌机
+        enemyAircrafts.clear();
+        // 清除所有敌机子弹
+        enemyBullets.clear();
+    }
+    
+    /**
+     * 冻结敌机（冻结道具效果）
+     */
+    public void freezeEnemies() {
+        enemyFrozen = true;
+        freezeTimer = freezeDuration;
+    }
 
     //***********************
     //      Paint 各部分

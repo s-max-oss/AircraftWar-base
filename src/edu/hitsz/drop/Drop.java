@@ -28,5 +28,15 @@ public abstract class Drop extends AbstractFlyingObject {
      * @param heroAircraft 英雄机
      */
     public abstract void activate(HeroAircraft heroAircraft);
+    
+    /**
+     * 激活道具效果（带游戏对象）
+     * @param heroAircraft 英雄机
+     * @param game 游戏对象
+     */
+    public void activate(HeroAircraft heroAircraft, edu.hitsz.application.Game game) {
+        // 默认实现，调用无参数版本
+        activate(heroAircraft);
+    }
 
 }

@@ -13,4 +13,12 @@ public class Freeze extends Drop {
         // 无需实现具体功能
         vanish();
     }
+    
+    @Override
+    public void activate(HeroAircraft heroAircraft, edu.hitsz.application.Game game) {
+        // 冻结敌机
+        game.freezeEnemies();
+        // 道具使用后消失
+        vanish();
+    }
 }

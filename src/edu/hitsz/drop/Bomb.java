@@ -13,4 +13,12 @@ public class Bomb extends Drop {
         // 无需实现具体功能
         vanish();
     }
+    
+    @Override
+    public void activate(HeroAircraft heroAircraft, edu.hitsz.application.Game game) {
+        // 清除所有敌机和敌机子弹
+        game.clearEnemiesAndBullets();
+        // 道具使用后消失
+        vanish();
+    }
 }

@@ -5,7 +5,7 @@ import edu.hitsz.aircraft.HeroAircraft;
 public class AddBulletPlus extends Drop {
 
     // 增加子弹数
-    protected int bulletNum = 2;
+    protected int power = 10;
 
     public AddBulletPlus(int locationX, int locationY, int speedX, int speedY) {
         super(locationX, locationY, speedX, speedY);
@@ -13,11 +13,13 @@ public class AddBulletPlus extends Drop {
 
     @Override
     public void activate(HeroAircraft heroAircraft) {
-        // 无需实现具体功能
+        // 给英雄机增加子弹威力
+        heroAircraft.increasePower(power);
+        // 道具使用后消失
         vanish();
     }
 
-    public int getBulletNum() {
-        return bulletNum;
+    public int getPower() {
+        return power;
     }
 }
