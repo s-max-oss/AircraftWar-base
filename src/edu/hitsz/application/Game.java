@@ -89,6 +89,18 @@ public class Game extends JPanel {
     //当前冻结剩余时间
     private int freezeTimer = 0;
     
+    // Boss 生成分数阈值
+    private int bossScoreThreshold = 1000;
+    // 上一次生成 Boss 时的分数
+    private int lastBossScore = 0;
+    
+    // 最大血量提升分数阈值
+    private int maxHpScoreThreshold = 1500;
+    // 上一次提升最大血量时的分数
+    private int lastMaxHpScore = 0;
+    // 每次提升的最大血量值
+    private int maxHpIncrease = 20;
+    
     // 难度等级
     private int difficultyLevel = 1;
     // 基础攻击力
@@ -214,27 +226,37 @@ public class Game extends JPanel {
                     }
                 }
 
-                // 生成Boss敌机（30秒后才开始生成）
-                if (gameTime >= 30) {
-                    bossSpawnCounter++;
-                    if (bossSpawnCounter >= bossSpawnCycle) {
-                        bossSpawnCounter = 0;
-                        int bossSpawnCount = 0;
-                        for (AbstractAircraft aircraft : enemyAircrafts){
-                            if (aircraft instanceof Boss){
-                                bossSpawnCount++;
-                            }
+                // 生成Boss敌机（基于分数阈值）
+                if (score >= lastBossScore + bossScoreThreshold) {
+                    int bossSpawnCount = 0;
+                    for (AbstractAircraft aircraft : enemyAircrafts){
+                        if (aircraft instanceof Boss){
+                            bossSpawnCount++;
                         }
-                        // 产生Boss敌机
-                        if (bossSpawnCount < bossMaxNumber) {
-                            // 随机生成敌机位置
+                    }
+                    // 产生Boss敌机
+                    if (bossSpawnCount < bossMaxNumber) {
+                        // 随机生成敌机位置
                         int x = (int) (Math.random() * (Main.WINDOW_WIDTH - ImageManager.ELITE_PRO_ENEMY_IMAGE.getWidth()));
                         int y = 0;
                         // 使用工厂模式创建Boss敌机
                         EnemyAircraftFactory factory = EnemyAircraftFactoryManager.getFactory("Boss");
                         enemyAircrafts.add(factory.createAircraft(x, y, difficultyLevel));
-                        }
+                        // 更新上一次生成Boss的分数
+                        lastBossScore = score;
+                        // 随着游戏进行，提高Boss生成分数阈值
+                        bossScoreThreshold += 500;
                     }
+                }
+                
+                // 提升最大血量（基于分数阈值）
+                if (score >= lastMaxHpScore + maxHpScoreThreshold) {
+                    // 提升英雄机的最大血量
+                    heroAircraft.increaseMaxHp(maxHpIncrease);
+                    // 更新上一次提升最大血量的分数
+                    lastMaxHpScore = score;
+                    // 随着游戏进行，提高最大血量提升分数阈值
+                    maxHpScoreThreshold += 2000;
                 }
 
                 // 飞机发射子弹
@@ -250,6 +272,8 @@ public class Game extends JPanel {
                 crashCheckAction();
                 // 后处理
                 postProcessAction();
+                // 检查火力道具是否过期
+                heroAircraft.checkPowerUpExpiration();
                 // 重绘界面
                 repaint();
                 // 游戏结束检查
@@ -274,21 +298,50 @@ public class Game extends JPanel {
         }
     }
 
-    private void enemyShootAction(){
+    // Boss 敌机射击计数器
+    private int shootBossCounter = 0;
+    // Boss 敌机射击周期（频率提高100%）
+    private double shootBossCycle = 25;
+    
+    private void enemyShootAction(){  
         shootEnemyCounter ++;
-        if (shootEnemyCounter >= shootEnemyCycle){
+        shootBossCounter ++;
+        
+        // 普通敌机射击
+        if (shootEnemyCounter >= shootEnemyCycle){  
             shootEnemyCounter = 0;
-            //敌机射击
-            for (AbstractAircraft enemyAircraft : enemyAircrafts) {
-                List<BaseBullet> bullets = enemyAircraft.shoot();
-                // 根据难度等级调整子弹威力
-                for (BaseBullet bullet : bullets) {
-                    // 调整子弹威力（根据难度等级增加）
-                    int originalPower = bullet.getPower();
-                    int newPower = originalPower + (difficultyLevel - 1) * 10;
-                    bullet.setPower(newPower);
+            // 普通敌机射击
+            for (AbstractAircraft enemyAircraft : enemyAircrafts) {  
+                if (!(enemyAircraft instanceof Boss)) {
+                    List<BaseBullet> bullets = enemyAircraft.shoot();
+                    // 根据难度等级调整子弹威力
+                    for (BaseBullet bullet : bullets) {
+                        // 调整子弹威力（根据难度等级增加）
+                        int originalPower = bullet.getPower();
+                        int newPower = originalPower + (difficultyLevel - 1) * 10;
+                        bullet.setPower(newPower);
+                    }
+                    enemyBullets.addAll(bullets);
                 }
-                enemyBullets.addAll(bullets);
+            }
+        }
+        
+        // Boss 敌机射击（频率提高100%）
+        if (shootBossCounter >= shootBossCycle){  
+            shootBossCounter = 0;
+            // Boss 敌机射击
+            for (AbstractAircraft enemyAircraft : enemyAircrafts) {  
+                if (enemyAircraft instanceof Boss) {
+                    List<BaseBullet> bullets = enemyAircraft.shoot();
+                    // 根据难度等级调整子弹威力
+                    for (BaseBullet bullet : bullets) {
+                        // 调整子弹威力（根据难度等级增加）
+                        int originalPower = bullet.getPower();
+                        int newPower = originalPower + (difficultyLevel - 1) * 10;
+                        bullet.setPower(newPower);
+                    }
+                    enemyBullets.addAll(bullets);
+                }
             }
         }
     }
@@ -308,13 +361,35 @@ public class Game extends JPanel {
             freezeTimer--;
             if (freezeTimer <= 0) {
                 enemyFrozen = false;
+                // 恢复精锐和精英敌机的速度
+                for (AbstractAircraft aircraft : enemyAircrafts) {
+                    if (aircraft instanceof EliteEnemy || aircraft instanceof ElitePlusEnemy) {
+                        // 恢复速度，这里假设原始速度为 1
+                        aircraft.setSpeedX(1);
+                        aircraft.setSpeedY(1);
+                    }
+                }
             }
-            // 冻结时敌机不移动
-            return;
         }
         
+        // 处理敌机移动
         for (AbstractAircraft enemyAircraft : enemyAircrafts) {
-            enemyAircraft.forward();
+            if (enemyAircraft instanceof Boss) {
+                // Boss 敌机正常移动
+                enemyAircraft.forward();
+            } else if (enemyAircraft instanceof EliteProEnemy) {
+                // 王牌敌机即使在冻结状态下也可以移动（但速度已减半）
+                enemyAircraft.forward();
+            } else if (enemyFrozen && (enemyAircraft instanceof EliteEnemy || enemyAircraft instanceof ElitePlusEnemy)) {
+                // 精锐和精英敌机在冻结状态下不移动
+                continue;
+            } else if (enemyAircraft instanceof MobEnemy && enemyFrozen) {
+                // 普通敌机永久冻结，不移动
+                continue;
+            } else {
+                // 其他情况正常移动
+                enemyAircraft.forward();
+            }
         }
     }
     
@@ -447,8 +522,35 @@ public class Game extends JPanel {
      * 清除所有敌机和敌机子弹（炸弹道具效果）
      */
     public void clearEnemiesAndBullets() {
-        // 清除所有敌机
-        enemyAircrafts.clear();
+        // 存储需要清除的敌机
+        List<AbstractAircraft> enemiesToRemove = new LinkedList<>();
+        
+        // 遍历所有敌机
+        for (AbstractAircraft aircraft : enemyAircrafts) {
+            if (aircraft instanceof Boss) {
+                // 对 Boss 敌机无效
+                continue;
+            } else if (aircraft instanceof EliteProEnemy) {
+                // 对王牌敌机造成伤害
+                aircraft.decreaseHp(200); // 假设王牌敌机的生命值较高，这里造成200点伤害
+                if (aircraft.notValid()) {
+                    // 如果王牌敌机被击毁，添加到移除列表
+                    enemiesToRemove.add(aircraft);
+                    // 英雄机获得分数
+                    score += 10;
+                    enemiesKilled++;
+                }
+            } else {
+                // 清除其他敌机
+                enemiesToRemove.add(aircraft);
+                // 英雄机获得分数
+                score += 10;
+                enemiesKilled++;
+            }
+        }
+        
+        // 移除需要清除的敌机
+        enemyAircrafts.removeAll(enemiesToRemove);
         // 清除所有敌机子弹
         enemyBullets.clear();
     }
@@ -457,6 +559,29 @@ public class Game extends JPanel {
      * 冻结敌机（冻结道具效果）
      */
     public void freezeEnemies() {
+        // 对不同类型的敌机采取不同的冻结效果
+        for (AbstractAircraft aircraft : enemyAircrafts) {
+            if (aircraft instanceof Boss) {
+                // 对 Boss 敌机无效
+                continue;
+            } else if (aircraft instanceof EliteProEnemy) {
+                // 对王牌敌机减速
+                aircraft.setSpeedX(aircraft.getSpeedX() / 2);
+                aircraft.setSpeedY(aircraft.getSpeedY() / 2);
+            } else if (aircraft instanceof EliteEnemy || aircraft instanceof ElitePlusEnemy) {
+                // 对精锐和精英敌机短暂冻结
+                // 这里通过设置速度为0来实现冻结效果
+                aircraft.setSpeedX(0);
+                aircraft.setSpeedY(0);
+                // 短暂冻结后恢复，这里需要在 forward 方法中处理
+            } else if (aircraft instanceof MobEnemy) {
+                // 对普通敌机永久冻结
+                aircraft.setSpeedX(0);
+                aircraft.setSpeedY(0);
+            }
+        }
+        
+        // 设置全局冻结标志，用于在 forward 方法中处理短暂冻结的恢复
         enemyFrozen = true;
         freezeTimer = freezeDuration;
     }

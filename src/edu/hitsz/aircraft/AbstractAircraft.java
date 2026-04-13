@@ -3,6 +3,7 @@ package edu.hitsz.aircraft;
 import edu.hitsz.bullet.BaseBullet;
 import edu.hitsz.basic.AbstractFlyingObject;
 import edu.hitsz.drop.Drop;
+import edu.hitsz.strategy.ShootStrategy;
 import java.util.List;
 import java.util.LinkedList;
 
@@ -15,6 +16,9 @@ public abstract class AbstractAircraft extends AbstractFlyingObject {
     //最大生命值
     protected int maxHp;
     protected int hp;
+    
+    // 射击策略
+    protected ShootStrategy shootStrategy;
 
     public AbstractAircraft(int locationX, int locationY, int speedX, int speedY, int hp) {
         super(locationX, locationY, speedX, speedY);
@@ -40,7 +44,30 @@ public abstract class AbstractAircraft extends AbstractFlyingObject {
     public int getHp() {
         return hp;
     }
-
+    
+    public int getSpeedX() {
+        return speedX;
+    }
+    
+    public void setSpeedX(int speedX) {
+        this.speedX = speedX;
+    }
+    
+    public int getSpeedY() {
+        return speedY;
+    }
+    
+    public void setSpeedY(int speedY) {
+        this.speedY = speedY;
+    }
+    
+    /**
+     * 设置射击策略
+     * @param shootStrategy 射击策略
+     */
+    public void setShootStrategy(ShootStrategy shootStrategy) {
+        this.shootStrategy = shootStrategy;
+    }
 
     /**
      * 飞机射击方法
@@ -48,7 +75,12 @@ public abstract class AbstractAircraft extends AbstractFlyingObject {
      *  可射击对象需实现，返回子弹列表
      *  非可射击对象空实现，返回空列表
      */
-    public abstract List<BaseBullet> shoot();
+    public List<BaseBullet> shoot() {
+        if (shootStrategy != null) {
+            return shootStrategy.shoot(this);
+        }
+        return new LinkedList<>();
+    }
     
     /**
      * 飞机掉落道具方法

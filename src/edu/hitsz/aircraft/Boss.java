@@ -6,6 +6,7 @@ import edu.hitsz.bullet.EnemyBullet;
 import edu.hitsz.drop.Drop;
 import edu.hitsz.drop.factory.DropFactory;
 import edu.hitsz.drop.factory.DropFactoryManager;
+import edu.hitsz.strategy.RingShootStrategy;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -22,6 +23,8 @@ public class Boss extends EnemyAircraft{
 
     public Boss(int locationX, int locationY, int speedX, int speedY, int hp) {
         super(locationX, locationY, speedX, speedY, hp);
+        // 初始化射击策略为环形射击，发射20颗子弹形成环形（密度提高150%）
+        this.shootStrategy = new RingShootStrategy(20, power);
     }
 
     @Override
@@ -33,22 +36,6 @@ public class Boss extends EnemyAircraft{
         }
     }
 
-    @Override
-    public List<BaseBullet> shoot() {
-        List<BaseBullet> res = new LinkedList<>();
-        int x = this.getLocationX();
-        int y = this.getLocationY() + direction*2;
-        int speedX = 0;
-        int speedY = this.getSpeedY() + direction*5;
-        BaseBullet bullet;
-        for(int i=0; i<shootNum; i++){
-            // 子弹发射位置相对飞机位置向前偏移
-            // 多个子弹横向分散
-            bullet = new EnemyBullet(x + (i*2 - shootNum + 1)*10, y, (int)(speedX + (i - 1) * speedY * 0.4), speedY, power);
-            res.add(bullet);
-        }
-        return res;
-    }
     @Override
     /**
      * 高级精英敌机掉落掉落物

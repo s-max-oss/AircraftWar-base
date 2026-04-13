@@ -1,0 +1,91 @@
+@startuml
+' 工厂模式 UML 图
+
+' 定义接口
+interface EnemyAircraftFactory {
+  +createAircraft(int locationX, int locationY, int difficultyLevel): AbstractAircraft
+}
+
+' 定义具体工厂类
+class MobEnemyFactory {
+  +createAircraft(int locationX, int locationY, int difficultyLevel): AbstractAircraft
+}
+
+class EliteEnemyFactory {
+  +createAircraft(int locationX, int locationY, int difficultyLevel): AbstractAircraft
+}
+
+class ElitePlusEnemyFactory {
+  +createAircraft(int locationX, int locationY, int difficultyLevel): AbstractAircraft
+}
+
+class EliteProEnemyFactory {
+  +createAircraft(int locationX, int locationY, int difficultyLevel): AbstractAircraft
+}
+
+class BossEnemyFactory {
+  +createAircraft(int locationX, int locationY, int difficultyLevel): AbstractAircraft
+}
+
+' 定义工厂管理器
+class EnemyAircraftFactoryManager {
+  -factoryMap: Map<String, EnemyAircraftFactory>
+  +getFactory(String aircraftType): EnemyAircraftFactory
+}
+
+' 定义产品类
+class AbstractAircraft {
+  -locationX: int
+  -locationY: int
+  -speedX: int
+  -speedY: int
+  -hp: int
+  +forward(): void
+  +shoot(): List<BaseBullet>
+  +drop(): List<Drop>
+}
+
+class MobEnemy {
+  +MobEnemy(int locationX, int locationY, int speedX, int speedY, int hp)
+}
+
+class EliteEnemy {
+  +EliteEnemy(int locationX, int locationY, int speedX, int speedY, int hp)
+}
+
+class ElitePlusEnemy {
+  +ElitePlusEnemy(int locationX, int locationY, int speedX, int speedY, int hp)
+}
+
+class EliteProEnemy {
+  +EliteProEnemy(int locationX, int locationY, int speedX, int speedY, int hp)
+}
+
+class Boss {
+  +Boss(int locationX, int locationY, int speedX, int speedY, int hp)
+}
+
+' 定义关系
+EnemyAircraftFactory <|-- MobEnemyFactory
+EnemyAircraftFactory <|-- EliteEnemyFactory
+EnemyAircraftFactory <|-- ElitePlusEnemyFactory
+EnemyAircraftFactory <|-- EliteProEnemyFactory
+EnemyAircraftFactory <|-- BossEnemyFactory
+
+MobEnemyFactory --> MobEnemy
+EliteEnemyFactory --> EliteEnemy
+ElitePlusEnemyFactory --> ElitePlusEnemy
+EliteProEnemyFactory --> EliteProEnemy
+BossEnemyFactory --> Boss
+
+AbstractAircraft <|-- MobEnemy
+AbstractAircraft <|-- EliteEnemy
+AbstractAircraft <|-- ElitePlusEnemy
+AbstractAircraft <|-- EliteProEnemy
+AbstractAircraft <|-- Boss
+
+EnemyAircraftFactoryManager ..> EnemyAircraftFactory
+
+' 标题
+title 工厂模式 - 敌机创建
+@enduml

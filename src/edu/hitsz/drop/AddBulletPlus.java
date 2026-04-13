@@ -15,6 +15,8 @@ public class AddBulletPlus extends Drop {
     public void activate(HeroAircraft heroAircraft) {
         // 给英雄机增加子弹威力
         heroAircraft.increasePower(power);
+        // 激活环形射击策略
+        heroAircraft.activateRingShoot();
         // 道具使用后消失
         vanish();
     }

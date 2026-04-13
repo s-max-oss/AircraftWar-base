@@ -1,184 +1,49 @@
 @startuml
+' 单例模式 UML 图
 
-' 单例模式 UML 类图
-' 设计模式：单例模式 (Singleton Pattern)
-
-' 定义包
-package "edu.hitsz.basic" {
-    abstract class AbstractFlyingObject {
-        - locationX: int
-        - locationY: int
-        - speedX: int
-        - speedY: int
-        - image: BufferedImage
-        - width: int
-        - height: int
-        - isValid: boolean
-        + forward(): void
-        + crash(flyingObject: AbstractFlyingObject): boolean
-        + getLocationX(): int
-        + getLocationY(): int
-        + setLocation(locationX: double, locationY: double): void
-        + getSpeedY(): int
-        + getImage(): BufferedImage
-        + getWidth(): int
-        + getHeight(): int
-        + vanish(): void
-        + notValid(): boolean
-    }
+' 定义HeroAircraft类
+class HeroAircraft {
+  -static instance: HeroAircraft
+  -locationX: int
+  -locationY: int
+  -speedX: int
+  -speedY: int
+  -hp: int
+  -power: int
+  -shootNum: int
+  -direction: int
+  -cycle: int
+  
+  -HeroAircraft()
+  +static getInstance(): HeroAircraft
+  +reset(): void
+  +increaseHp(int hp): void
+  +decreaseHp(int damage): void
+  +shoot(): List<BaseBullet>
+  +forward(): void
+  +setLocation(int x, int y): void
+  +getLocationX(): int
+  +getLocationY(): int
+  +getHp(): int
 }
 
-package "edu.hitsz.aircraft" {
-    abstract class AbstractAircraft extends AbstractFlyingObject {
-        - maxHp: int
-        - hp: int
-        + decreaseHp(decrease: int): void
-        + increaseHp(increase: int): void
-        + getHp(): int
-        + shoot(): List<BaseBullet>
-        + drop(): List<Drop>
-    }
-    
-    ' 英雄飞机类（单例模式 - DCL实现）
-    class HeroAircraft extends AbstractAircraft {
-        ' 单例相关
-        - static volatile instance: HeroAircraft
-        - private HeroAircraft(locationX: int, locationY: int, speedX: int, speedY: int, hp: int)
-        + static getInstance(): HeroAircraft
-        + static synchronized reset(): void
-        
-        ' 其他属性和方法
-        - shootNum: int
-        - power: int
-        - direction: int
-        + increaseShootNum(increase: int): void
-        + setShootNumTo(aim: int): void
-        + increasePower(increase: int): void
-        + setPowerTo(aim: int): void
-        + increaseBulletNum(increase: int): void
-        + forward(): void
-        + shoot(): List<BaseBullet>
-        + drop(): List<Drop>
-    }
-    
-    abstract class EnemyAircraft extends AbstractAircraft {
-        + EnemyAircraft(locationX: int, locationY: int, speedX: int, speedY: int, hp: int)
-        + forward(): void
-        + shoot(): List<BaseBullet>
-        + drop(): List<Drop>
-    }
-    
-    class MobEnemy extends EnemyAircraft {
-        + MobEnemy(locationX: int, locationY: int, speedX: int, speedY: int, hp: int)
-        + forward(): void
-        + shoot(): List<BaseBullet>
-        + drop(): List<Drop>
-    }
-    
-    class EliteEnemy extends EnemyAircraft {
-        - shootNum: int
-        - power: int
-        - direction: int
-        + EliteEnemy(locationX: int, locationY: int, speedX: int, speedY: int, hp: int)
-        + forward(): void
-        + shoot(): List<BaseBullet>
-        + drop(): List<Drop>
-    }
-    
-    class ElitePlusEnemy extends EnemyAircraft {
-        - shootNum: int
-        - power: int
-        - direction: int
-        + ElitePlusEnemy(locationX: int, locationY: int, speedX: int, speedY: int, hp: int)
-        + forward(): void
-        + shoot(): List<BaseBullet>
-        + drop(): List<Drop>
-    }
-    
-    class EliteProEnemy extends EnemyAircraft {
-        - shootNum: int
-        - power: int
-        - direction: int
-        + EliteProEnemy(locationX: int, locationY: int, speedX: int, speedY: int, hp: int)
-        + forward(): void
-        + shoot(): List<BaseBullet>
-        + drop(): List<Drop>
-    }
-    
-    class Boss extends EnemyAircraft {
-        + Boss(locationX: int, locationY: int, speedX: int, speedY: int, hp: int)
-        + forward(): void
-        + shoot(): List<BaseBullet>
-        + drop(): List<Drop>
-    }
+' 定义使用HeroAircraft的类
+class Game {
+  -heroAircraft: HeroAircraft
+  +Game(JFrame frame)
+  +action(): void
 }
 
-package "edu.hitsz.drop" {
-    abstract class Drop extends AbstractFlyingObject {
-        + Drop(locationX: int, locationY: int, speedX: int, speedY: int)
-        + forward(): void
-        + activate(heroAircraft: HeroAircraft): void
-    }
-    
-    class Hp extends Drop {
-        - restoreHp: int
-        + Hp(locationX: int, locationY: int, speedX: int, speedY: int)
-        + activate(heroAircraft: HeroAircraft): void
-        + getRestoreHp(): int
-    }
-    
-    class AddBullet extends Drop {
-        - bulletNum: int
-        + AddBullet(locationX: int, locationY: int, speedX: int, speedY: int)
-        + activate(heroAircraft: HeroAircraft): void
-        + getBulletNum(): int
-    }
-    
-    class AddBulletPlus extends Drop {
-        - bulletNum: int
-        + AddBulletPlus(locationX: int, locationY: int, speedX: int, speedY: int)
-        + activate(heroAircraft: HeroAircraft): void
-        + getBulletNum(): int
-    }
-    
-    class Bomb extends Drop {
-        + Bomb(locationX: int, locationY: int, speedX: int, speedY: int)
-        + activate(heroAircraft: HeroAircraft): void
-    }
-    
-    class Freeze extends Drop {
-        + Freeze(locationX: int, locationY: int, speedX: int, speedY: int)
-        + activate(heroAircraft: HeroAircraft): void
-    }
+class HeroController {
+  -game: Game
+  -heroAircraft: HeroAircraft
+  +HeroController(Game game, HeroAircraft heroAircraft)
 }
 
-package "edu.hitsz.bullet" {
-    abstract class BaseBullet extends AbstractFlyingObject {
-        - power: int
-        + BaseBullet(locationX: int, locationY: int, speedX: int, speedY: int, power: int)
-        + forward(): void
-        + getPower(): int
-    }
-    
-    class HeroBullet extends BaseBullet {
-        + HeroBullet(locationX: int, locationY: int, speedX: int, speedY: int, power: int)
-    }
-    
-    class EnemyBullet extends BaseBullet {
-        + EnemyBullet(locationX: int, locationY: int, speedX: int, speedY: int, power: int)
-    }
-}
+' 定义关系
+Game ..> HeroAircraft
+HeroController ..> HeroAircraft
 
-' 设计模式标注
-note right of HeroAircraft
-    设计模式：单例模式 (Singleton Pattern)
-    实现方式：DCL（双重检查锁定）
-    核心要点：
-    1. 私有静态实例变量（volatile修饰）
-    2. 私有构造方法
-    3. 静态获取实例方法（双重检查）
-    4. 提供全局访问点
-    5. 线程安全
-end note
-
+' 标题
+title 单例模式 - HeroAircraft
 @enduml

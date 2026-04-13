@@ -1,0 +1,102 @@
+@startuml
+' 策略模式 UML 图
+
+' 定义策略接口
+interface DropStrategy {
+  +activate(HeroAircraft hero, Game game): void
+}
+
+' 定义具体策略类
+class HpDropStrategy {
+  +activate(HeroAircraft hero, Game game): void
+}
+
+class AddBulletDropStrategy {
+  +activate(HeroAircraft hero, Game game): void
+}
+
+class AddBulletPlusDropStrategy {
+  +activate(HeroAircraft hero, Game game): void
+}
+
+class BombDropStrategy {
+  +activate(HeroAircraft hero, Game game): void
+}
+
+class FreezeDropStrategy {
+  +activate(HeroAircraft hero, Game game): void
+}
+
+' 定义上下文类
+class Drop {
+  -locationX: int
+  -locationY: int
+  -speedX: int
+  -speedY: int
+  -image: BufferedImage
+  -strategy: DropStrategy
+  
+  +Drop(int locationX, int locationY, int speedX, int speedY, BufferedImage image, DropStrategy strategy)
+  +activate(HeroAircraft hero, Game game): void
+  +forward(): void
+  +notValid(): boolean
+  +vanish(): void
+  +getImage(): BufferedImage
+  +getLocationX(): int
+  +getLocationY(): int
+}
+
+' 定义具体上下文类
+class Hp {
+  +Hp(int locationX, int locationY)
+}
+
+class AddBullet {
+  +AddBullet(int locationX, int locationY)
+}
+
+class AddBulletPlus {
+  +AddBulletPlus(int locationX, int locationY)
+}
+
+class Bomb {
+  +Bomb(int locationX, int locationY)
+}
+
+class Freeze {
+  +Freeze(int locationX, int locationY)
+}
+
+' 定义使用策略的类
+class Game {
+  -drops: List<Drop>
+  +clearEnemiesAndBullets(): void
+  +freezeEnemies(): void
+}
+
+' 定义关系
+DropStrategy <|-- HpDropStrategy
+DropStrategy <|-- AddBulletDropStrategy
+DropStrategy <|-- AddBulletPlusDropStrategy
+DropStrategy <|-- BombDropStrategy
+DropStrategy <|-- FreezeDropStrategy
+
+Drop --> DropStrategy
+
+Drop <|-- Hp
+Drop <|-- AddBullet
+Drop <|-- AddBulletPlus
+Drop <|-- Bomb
+Drop <|-- Freeze
+
+Hp --> HpDropStrategy
+AddBullet --> AddBulletDropStrategy
+AddBulletPlus --> AddBulletPlusDropStrategy
+Bomb --> BombDropStrategy
+Freeze --> FreezeDropStrategy
+
+Game ..> Drop
+
+' 标题
+title 策略模式 - 道具激活效果
+@enduml

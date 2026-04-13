@@ -23,7 +23,9 @@ public abstract class EnemyAircraft extends AbstractAircraft {
     }
 
     @Override
-    public abstract List<BaseBullet> shoot();
+    public List<BaseBullet> shoot() {
+        return super.shoot();
+    }
 
     /**
      * 敌机掉落道具方法
