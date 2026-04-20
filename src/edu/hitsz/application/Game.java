@@ -85,7 +85,7 @@ public class Game extends JPanel {
     //敌机冻结标志
     private boolean enemyFrozen = false;
     //冻结持续时间（帧数）
-    private int freezeDuration = 30;
+    private int freezeDuration = 60;
     //当前冻结剩余时间
     private int freezeTimer = 0;
     
@@ -103,19 +103,38 @@ public class Game extends JPanel {
     
     // 难度等级
     private int difficultyLevel = 1;
+    // 初始难度等级（用户选择的难度）
+    private int initialDifficulty = 1;
     // 基础攻击力
     private int baseEnemyPower = 40;
     // 基础移动速度系数
     private double baseSpeedFactor = 1.0;
     // 背景图片索引
     private int backgroundIndex = 0;
+    // 用户名
+    private String userName;
 
     public Game(JFrame frame) {
+        this(frame, "玩家", 1);
+    }
+
+    public Game(JFrame frame, String userName) {
+        this(frame, userName, 1);
+    }
+
+    public Game(JFrame frame, String userName, int initialDifficulty) {
         this.parentFrame = frame;
+        this.userName = userName;
         // 记录游戏开始时间
         this.gameStartTime = System.currentTimeMillis();
         // 初始化敌机击杀数
         this.enemiesKilled = 0;
+        // 设置初始难度等级
+        this.difficultyLevel = initialDifficulty;
+        // 保存用户选择的初始难度
+        this.initialDifficulty = initialDifficulty;
+        // 根据初始难度设置相关属性
+        initializeDifficultySettings(initialDifficulty);
         
         // 使用单例模式获取英雄机实例
         heroAircraft = HeroAircraft.getInstance();
@@ -131,7 +150,34 @@ public class Game extends JPanel {
         new HeroController(this, heroAircraft);
 
         this.timer = new Timer("game-action-timer", true);
+    }
 
+    /**
+     * 根据初始难度设置相关属性
+     */
+    private void initializeDifficultySettings(int difficulty) {
+        switch (difficulty) {
+            case 1:
+                baseEnemyPower = 40;
+                baseSpeedFactor = 1.0;
+                break;
+            case 2:
+                baseEnemyPower = 50;
+                baseSpeedFactor = 1.1;
+                break;
+            case 3:
+                baseEnemyPower = 60;
+                baseSpeedFactor = 1.1;
+                break;
+            case 4:
+                baseEnemyPower = 70;
+                baseSpeedFactor = 1.1;
+                break;
+            case 5:
+                baseEnemyPower = 80;
+                baseSpeedFactor = 1.25;
+                break;
+        }
     }
 
     /**
@@ -511,7 +557,7 @@ public class Game extends JPanel {
             
             // 显示游戏结束面板
             parentFrame.getContentPane().removeAll();
-            GameOverPanel gameOverPanel = new GameOverPanel(parentFrame, enemiesKilled, score, gameTime);
+            GameOverPanel gameOverPanel = new GameOverPanel(parentFrame, enemiesKilled, score, gameTime, userName, difficultyLevel, initialDifficulty);
             parentFrame.add(gameOverPanel);
             parentFrame.revalidate();
             parentFrame.repaint();
@@ -593,31 +639,41 @@ public class Game extends JPanel {
         int newLevel = 1;
         int newBackgroundIndex = 0;
         
-        // 根据游戏时间确定难度等级
+        // 基于游戏时间计算目标难度等级
         if (gameTime < 30) {
-            // 30秒以内，难度等级1
+            // 30秒以内，目标难度等级1
             newLevel = 1;
-            newBackgroundIndex = 0;
         } else if (gameTime < 120) {
-            // 30秒到2分钟，难度等级2
+            // 30秒到2分钟，目标难度等级2
             newLevel = 2;
-            newBackgroundIndex = 1;
         } else if (gameTime < 300) {
-            // 2分钟到5分钟，难度等级3
+            // 2分钟到5分钟，目标难度等级3
             newLevel = 3;
-            newBackgroundIndex = 2;
         } else if (gameTime < 540) {
-            // 5分钟到9分钟，难度等级4
+            // 5分钟到9分钟，目标难度等级4
             newLevel = 4;
-            newBackgroundIndex = 3;
         } else {
-            // 超过9分钟，难度等级5
+            // 超过9分钟，目标难度等级5
             newLevel = 5;
+        }
+        
+        // 确保实际难度等级不低于用户选择的初始难度
+        // 这样用户选择的难度会作为最低难度，然后根据时间正常升级
+        if (newLevel < difficultyLevel) {
+            newLevel = difficultyLevel;
+        }
+        
+        // 根据实际难度等级设置背景图片索引
+        newBackgroundIndex = difficultyLevel - 1;
+        if (newBackgroundIndex < 0) {
+            newBackgroundIndex = 0;
+        } else if (newBackgroundIndex > 4) {
             newBackgroundIndex = 4;
         }
         
         // 如果难度等级发生变化
         if (newLevel != difficultyLevel) {
+            int oldLevel = difficultyLevel;
             difficultyLevel = newLevel;
             
             // 根据难度等级调整属性
@@ -640,6 +696,10 @@ public class Game extends JPanel {
                     enemyMaxNumber++;
                     eliteEnemyMaxNumber++;
                     elitePlusEnemyMaxNumber++;
+                    // 难度提升时增加英雄机最大血量
+                    if (oldLevel < 3) {
+                        heroAircraft.increaseMaxHp(20 * (3 - oldLevel));
+                    }
                     break;
                 case 4:
                     // 难度等级4：最大数量+1，攻击力+10
@@ -649,6 +709,10 @@ public class Game extends JPanel {
                     enemyMaxNumber++;
                     eliteEnemyMaxNumber++;
                     elitePlusEnemyMaxNumber++;
+                    // 难度提升时增加英雄机最大血量
+                    if (oldLevel < 4) {
+                        heroAircraft.increaseMaxHp(20 * (4 - oldLevel));
+                    }
                     break;
                 case 5:
                     // 难度等级5：最大数量+1，攻击力+10，速度+25%
@@ -658,6 +722,10 @@ public class Game extends JPanel {
                     enemyMaxNumber++;
                     eliteEnemyMaxNumber++;
                     elitePlusEnemyMaxNumber++;
+                    // 难度提升时增加英雄机最大血量
+                    if (oldLevel < 5) {
+                        heroAircraft.increaseMaxHp(20 * (5 - oldLevel));
+                    }
                     break;
             }
         }
@@ -714,13 +782,13 @@ public class Game extends JPanel {
     private Image getBackgroundImage() {
         switch (backgroundIndex) {
             case 1:
-                return ImageManager.BACKGROUND_IMAGE;
+                return ImageManager.BACKGROUND_IMAGE2;
             case 2:
-                return ImageManager.BACKGROUND_IMAGE;
+                return ImageManager.BACKGROUND_IMAGE3;
             case 3:
-                return ImageManager.BACKGROUND_IMAGE;
+                return ImageManager.BACKGROUND_IMAGE4;
             case 4:
-                return ImageManager.BACKGROUND_IMAGE;
+                return ImageManager.BACKGROUND_IMAGE5;
             default:
                 return ImageManager.BACKGROUND_IMAGE;
         }

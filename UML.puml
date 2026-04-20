@@ -1,0 +1,415 @@
+@startuml
+
+' 单例模式
+class HeroAircraft {
+  - static HeroAircraft instance
+  - HeroAircraft()
+  + static HeroAircraft getInstance()
+  + void reset()
+}
+
+class ImageManager {
+  - static Map<String, BufferedImage> CLASSNAME_IMAGE_MAP
+  - static BufferedImage BACKGROUND_IMAGE
+  - static BufferedImage HERO_IMAGE
+  - static BufferedImage HERO_BULLET_IMAGE
+  - static BufferedImage ENEMY_BULLET_IMAGE
+  - static BufferedImage MOB_ENEMY_IMAGE
+  - static BufferedImage ELITE_ENEMY_IMAGE
+  - static BufferedImage ELITE_PLUS_ENEMY_IMAGE
+  - static BufferedImage ELITE_PRO_ENEMY_IMAGE
+  - static BufferedImage BOSS_IMAGE
+  - static BufferedImage HP_DROP_IMAGE
+  - static BufferedImage ADD_BULLET_DROP_IMAGE
+  - static BufferedImage ADD_BULLET_PLUS_DROP_IMAGE
+  - static BufferedImage BOMB_DROP_IMAGE
+  - static BufferedImage FREEZE_DROP_IMAGE
+  + static BufferedImage get(String className)
+  + static BufferedImage get(Object obj)
+}
+
+' 工厂模式
+interface EnemyAircraftFactory {
+  + EnemyAircraft createAircraft(int locationX, int locationY, int difficultyLevel)
+}
+
+class BossEnemyFactory implements EnemyAircraftFactory {
+  + EnemyAircraft createAircraft(int locationX, int locationY, int difficultyLevel)
+}
+
+class EliteEnemyFactory implements EnemyAircraftFactory {
+  + EnemyAircraft createAircraft(int locationX, int locationY, int difficultyLevel)
+}
+
+class ElitePlusEnemyFactory implements EnemyAircraftFactory {
+  + EnemyAircraft createAircraft(int locationX, int locationY, int difficultyLevel)
+}
+
+class EliteProEnemyFactory implements EnemyAircraftFactory {
+  + EnemyAircraft createAircraft(int locationX, int locationY, int difficultyLevel)
+}
+
+class MobEnemyFactory implements EnemyAircraftFactory {
+  + EnemyAircraft createAircraft(int locationX, int locationY, int difficultyLevel)
+}
+
+class EnemyAircraftFactoryManager {
+  - static Map<String, EnemyAircraftFactory> factoryMap
+  + static EnemyAircraftFactory getFactory(String type)
+}
+
+interface DropFactory {
+  + Drop createDrop(int locationX, int locationY, int speedX, int speedY)
+}
+
+class AddBulletDropFactory implements DropFactory {
+  + Drop createDrop(int locationX, int locationY, int speedX, int speedY)
+}
+
+class AddBulletPlusDropFactory implements DropFactory {
+  + Drop createDrop(int locationX, int locationY, int speedX, int speedY)
+}
+
+class BombDropFactory implements DropFactory {
+  + Drop createDrop(int locationX, int locationY, int speedX, int speedY)
+}
+
+class FreezeDropFactory implements DropFactory {
+  + Drop createDrop(int locationX, int locationY, int speedX, int speedY)
+}
+
+class HpDropFactory implements DropFactory {
+  + Drop createDrop(int locationX, int locationY, int speedX, int speedY)
+}
+
+class DropFactoryManager {
+  - static Map<String, DropFactory> factoryMap
+  + static DropFactory getFactory(String type)
+}
+
+' 策略模式
+interface ShootStrategy {
+  + List<BaseBullet> shoot(AbstractAircraft aircraft)
+}
+
+class RingShootStrategy implements ShootStrategy {
+  - int shootNum
+  - int power
+  + RingShootStrategy(int shootNum, int power)
+  + List<BaseBullet> shoot(AbstractAircraft aircraft)
+}
+
+class ScatterShootStrategy implements ShootStrategy {
+  - int shootNum
+  - int power
+  - int direction
+  + ScatterShootStrategy(int shootNum, int power, int direction)
+  + List<BaseBullet> shoot(AbstractAircraft aircraft)
+}
+
+class StraightShootStrategy implements ShootStrategy {
+  - int shootNum
+  - int power
+  - int direction
+  + StraightShootStrategy(int shootNum, int power, int direction)
+  + List<BaseBullet> shoot(AbstractAircraft aircraft)
+}
+
+' 飞机类
+abstract class AbstractAircraft extends AbstractFlyingObject {
+  - int maxHp
+  - int hp
+  - ShootStrategy shootStrategy
+  + void decreaseHp(int decrease)
+  + void increaseHp(int increase)
+  + int getHp()
+  + void setShootStrategy(ShootStrategy shootStrategy)
+  + List<BaseBullet> shoot()
+  + List<Drop> drop()
+}
+
+class HeroAircraft extends AbstractAircraft {
+  - static HeroAircraft instance
+  - int shootNum
+  - int power
+  - int direction
+  - int originalShootNum
+  - int originalPower
+  - long powerUpTime
+  - static final long POWER_UP_DURATION
+  - ShootStrategy originalShootStrategy
+  - long ringShootTime
+  - static final long RING_SHOOT_DURATION
+  - HeroAircraft()
+  + static HeroAircraft getInstance()
+  + void reset()
+  + void increaseBulletNum(int increase)
+  + void increasePower(int increase)
+  + void checkPowerUpExpiration()
+  + void activateRingShoot()
+  + void increaseMaxHp(int increase)
+}
+
+abstract class EnemyAircraft extends AbstractAircraft {
+  + EnemyAircraft(int locationX, int locationY, int speedX, int speedY, int hp)
+  + void forward()
+  + List<BaseBullet> shoot()
+  + List<Drop> drop()
+}
+
+class Boss extends EnemyAircraft {
+  - int shootNum
+  - int power
+  - int direction
+  + Boss(int locationX, int locationY, int speedX, int speedY, int hp)
+  + void forward()
+  + List<Drop> drop()
+}
+
+class EliteEnemy extends EnemyAircraft {
+  - int shootNum
+  - int power
+  - int direction
+  + EliteEnemy(int locationX, int locationY, int speedX, int speedY, int hp)
+  + List<Drop> drop()
+}
+
+class ElitePlusEnemy extends EnemyAircraft {
+  - int shootNum
+  - int power
+  - int direction
+  + ElitePlusEnemy(int locationX, int locationY, int speedX, int speedY, int hp)
+  + List<Drop> drop()
+}
+
+class EliteProEnemy extends EnemyAircraft {
+  - int shootNum
+  - int power
+  - int direction
+  + EliteProEnemy(int locationX, int locationY, int speedX, int speedY, int hp)
+  + List<Drop> drop()
+}
+
+class MobEnemy extends EnemyAircraft {
+  + MobEnemy(int locationX, int locationY, int speedX, int speedY, int hp)
+  + List<Drop> drop()
+}
+
+' 道具类
+abstract class Drop extends AbstractFlyingObject {
+  - int score
+  + Drop(int locationX, int locationY, int speedX, int speedY, int score)
+  + void vanish()
+  + abstract void activate(HeroAircraft heroAircraft)
+}
+
+class AddBullet extends Drop {
+  - int increase
+  + AddBullet(int locationX, int locationY, int speedX, int speedY, int score, int increase)
+  + void activate(HeroAircraft heroAircraft)
+}
+
+class AddBulletPlus extends Drop {
+  - int power
+  + AddBulletPlus(int locationX, int locationY, int speedX, int speedY, int score, int power)
+  + void activate(HeroAircraft heroAircraft)
+}
+
+class Bomb extends Drop {
+  + Bomb(int locationX, int locationY, int speedX, int speedY, int score)
+  + void activate(HeroAircraft heroAircraft)
+}
+
+class Freeze extends Drop {
+  + Freeze(int locationX, int locationY, int speedX, int speedY, int score)
+  + void activate(HeroAircraft heroAircraft)
+}
+
+class Hp extends Drop {
+  - int increase
+  + Hp(int locationX, int locationY, int speedX, int speedY, int score, int increase)
+  + void activate(HeroAircraft heroAircraft)
+}
+
+' 子弹类
+abstract class BaseBullet extends AbstractFlyingObject {
+  - int power
+  + BaseBullet(int locationX, int locationY, int speedX, int speedY, int power)
+  + int getPower()
+  + void setPower(int power)
+}
+
+class EnemyBullet extends BaseBullet {
+  + EnemyBullet(int locationX, int locationY, int speedX, int speedY, int power)
+}
+
+class HeroBullet extends BaseBullet {
+  + HeroBullet(int locationX, int locationY, int speedX, int speedY, int power)
+}
+
+' 基础类
+abstract class AbstractFlyingObject {
+  - int locationX
+  - int locationY
+  - int speedX
+  - int speedY
+  - BufferedImage image
+  - int width
+  - int height
+  - boolean isValid
+  + AbstractFlyingObject()
+  + AbstractFlyingObject(int locationX, int locationY, int speedX, int speedY)
+  + void forward()
+  + boolean crash(AbstractFlyingObject flyingObject)
+  + int getLocationX()
+  + int getLocationY()
+  + void setLocation(double locationX, double locationY)
+  + int getSpeedY()
+  + BufferedImage getImage()
+  + int getWidth()
+  + int getHeight()
+  + void vanish()
+  + boolean notValid()
+}
+
+' 游戏类
+class Game {
+  - JFrame parentFrame
+  - long gameStartTime
+  - int enemiesKilled
+  - HeroAircraft heroAircraft
+  - List<AbstractAircraft> enemyAircrafts
+  - List<BaseBullet> heroBullets
+  - List<BaseBullet> enemyBullets
+  - List<Drop> drops
+  - int enemyMaxNumber
+  - int mobEnemyMaxNumber
+  - int eliteEnemyMaxNumber
+  - int elitePlusEnemyMaxNumber
+  - int eliteProEnemyMaxNumber
+  - int bossMaxNumber
+  - int enemySpawnCycle
+  - int mobEnemySpawnCycle
+  - int eliteEnemySpawnCycle
+  - int elitePlusEnemySpawnCycle
+  - int eliteProEnemySpawnCycle
+  - int bossSpawnCycle
+  - int enemySpawnCounter
+  - int mobEnemySpawnCounter
+  - int eliteEnemySpawnCounter
+  - int elitePlusEnemySpawnCounter
+  - int eliteProEnemySpawnCounter
+  - int bossSpawnCounter
+  - double shootHeroCycle
+  - int shootHeroCounter
+  - double shootEnemyCycle
+  - int shootEnemyCounter
+  - int shootBossCounter
+  - double shootBossCycle
+  - int score
+  - boolean gameOverFlag
+  - boolean enemyFrozen
+  - int freezeDuration
+  - int freezeTimer
+  - int bossScoreThreshold
+  - int lastBossScore
+  - int maxHpScoreThreshold
+  - int lastMaxHpScore
+  - int maxHpIncrease
+  - int difficultyLevel
+  - int baseEnemyPower
+  - double baseSpeedFactor
+  - int backgroundIndex
+  + Game(JFrame frame)
+  + void action()
+  + void heroShootAction()
+  + void enemyShootAction()
+  + void bulletsMoveAction()
+  + void aircraftsMoveAction()
+  + void dropsMoveAction()
+  + void collisionDetectionAction()
+  + void checkResultAction()
+  + void clearEnemiesAndBullets()
+  + void freezeEnemies()
+  + void updateDifficulty()
+  + void paint(Graphics g)
+  + int getScore()
+  + int getEnemiesKilled()
+  + boolean isGameOver()
+}
+
+' 关系
+' 单例模式
+HeroAircraft ..> HeroAircraft : 单例
+
+' 工厂模式
+EnemyAircraftFactoryManager --> EnemyAircraftFactory : 管理
+BossEnemyFactory --> Boss : 创建
+EliteEnemyFactory --> EliteEnemy : 创建
+ElitePlusEnemyFactory --> ElitePlusEnemy : 创建
+EliteProEnemyFactory --> EliteProEnemy : 创建
+MobEnemyFactory --> MobEnemy : 创建
+
+DropFactoryManager --> DropFactory : 管理
+AddBulletDropFactory --> AddBullet : 创建
+AddBulletPlusDropFactory --> AddBulletPlus : 创建
+BombDropFactory --> Bomb : 创建
+FreezeDropFactory --> Freeze : 创建
+HpDropFactory --> Hp : 创建
+
+' 策略模式
+AbstractAircraft --> ShootStrategy : 使用
+Boss --> RingShootStrategy : 使用
+HeroAircraft --> ScatterShootStrategy : 使用
+EliteEnemy --> StraightShootStrategy : 使用
+ElitePlusEnemy --> ScatterShootStrategy : 使用
+EliteProEnemy --> ScatterShootStrategy : 使用
+
+' 继承关系
+HeroAircraft --|> AbstractAircraft
+EnemyAircraft --|> AbstractAircraft
+Boss --|> EnemyAircraft
+EliteEnemy --|> EnemyAircraft
+ElitePlusEnemy --|> EnemyAircraft
+EliteProEnemy --|> EnemyAircraft
+MobEnemy --|> EnemyAircraft
+
+AddBullet --|> Drop
+AddBulletPlus --|> Drop
+Bomb --|> Drop
+Freeze --|> Drop
+Hp --|> Drop
+
+EnemyBullet --|> BaseBullet
+HeroBullet --|> BaseBullet
+
+AbstractAircraft --|> AbstractFlyingObject
+Drop --|> AbstractFlyingObject
+BaseBullet --|> AbstractFlyingObject
+
+' 依赖关系
+Game --> HeroAircraft : 使用
+Game --> EnemyAircraft : 使用
+Game --> BaseBullet : 使用
+Game --> Drop : 使用
+Game --> ImageManager : 使用
+Game --> EnemyAircraftFactoryManager : 使用
+Game --> DropFactoryManager : 使用
+
+Boss --> DropFactoryManager : 使用
+EliteEnemy --> DropFactoryManager : 使用
+ElitePlusEnemy --> DropFactoryManager : 使用
+EliteProEnemy --> DropFactoryManager : 使用
+MobEnemy --> DropFactoryManager : 使用
+
+AddBullet --> HeroAircraft : 激活
+AddBulletPlus --> HeroAircraft : 激活
+Bomb --> HeroAircraft : 激活
+Freeze --> HeroAircraft : 激活
+Hp --> HeroAircraft : 激活
+
+RingShootStrategy --> AbstractAircraft : 射击
+ScatterShootStrategy --> AbstractAircraft : 射击
+StraightShootStrategy --> AbstractAircraft : 射击
+
+@enduml
