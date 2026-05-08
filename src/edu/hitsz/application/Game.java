@@ -113,6 +113,8 @@ public class Game extends JPanel {
     private int backgroundIndex = 0;
     // 用户名
     private String userName;
+    // 音效管理器
+    private SoundManager soundManager;
 
     public Game(JFrame frame) {
         this(frame, "玩家", 1);
@@ -149,6 +151,9 @@ public class Game extends JPanel {
         //启动英雄机鼠标监听
         new HeroController(this, heroAircraft);
 
+        // 初始化音效管理器
+        soundManager = new SoundManager();
+
         this.timer = new Timer("game-action-timer", true);
     }
 
@@ -184,6 +189,8 @@ public class Game extends JPanel {
      * 游戏启动入口，执行游戏逻辑
      */
     public void action() {
+        // 开始播放背景音乐
+        soundManager.playBGM();
 
         // 定时任务：绘制、对象产生、碰撞判定、及结束判定
         TimerTask task = new TimerTask() {
@@ -290,6 +297,8 @@ public class Game extends JPanel {
                         enemyAircrafts.add(factory.createAircraft(x, y, difficultyLevel));
                         // 更新上一次生成Boss的分数
                         lastBossScore = score;
+                        // 播放Boss专属背景音乐
+                        soundManager.playBossBGM();
                         // 随着游戏进行，提高Boss生成分数阈值
                         bossScoreThreshold += 500;
                     }
@@ -484,6 +493,8 @@ public class Game extends JPanel {
                     // 敌机损失一定生命值
                     enemyAircraft.decreaseHp(bullet.getPower());
                     bullet.vanish();
+                    // 播放击中音效
+                    soundManager.playHitSound();
                     if (enemyAircraft.notValid()) {
                         // 获得分数
                         score += 10;
@@ -491,6 +502,10 @@ public class Game extends JPanel {
                         enemiesKilled++;
                         // 产生道具补给
                         drops.addAll(enemyAircraft.drop());
+                        // 如果击毁的是Boss，停止Boss背景音乐
+                        if (enemyAircraft instanceof Boss) {
+                            soundManager.stopBossBGM();
+                        }
                     }
                 }
                 // 英雄机 与 敌机 相撞，均损毁
@@ -508,6 +523,8 @@ public class Game extends JPanel {
             }
             if (heroAircraft.crash(drop)) {
                 // 英雄机碰到道具
+                // 播放道具生效音效
+                soundManager.playPowerUpSound();
                 if (drop instanceof edu.hitsz.drop.Hp) {
                     // 激活Hp道具效果
                     ((edu.hitsz.drop.Hp) drop).activate(heroAircraft);
@@ -520,6 +537,8 @@ public class Game extends JPanel {
                 }
                 if (drop instanceof edu.hitsz.drop.Bomb){
                     ((edu.hitsz.drop.Bomb) drop).activate(heroAircraft, this);
+                    // 播放炸弹爆炸音效
+                    soundManager.playBombSound();
                 }
                 if (drop instanceof edu.hitsz.drop.Freeze){
                     ((edu.hitsz.drop.Freeze) drop).activate(heroAircraft, this);
@@ -551,6 +570,9 @@ public class Game extends JPanel {
             timer.cancel(); // 取消定时器并终止所有调度任务
             gameOverFlag = true;
             System.out.println("Game Over!");
+            
+            // 播放游戏结束音效
+            soundManager.playGameOverSound();
             
             // 计算游戏时间
             long gameTime = System.currentTimeMillis() - gameStartTime;

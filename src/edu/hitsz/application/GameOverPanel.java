@@ -56,31 +56,32 @@ public class GameOverPanel extends JPanel {
         JLabel difficultyLabel = createDataLabel("难度: " + getDifficultyName(difficulty), 300);
         add(difficultyLabel);
 
-        JLabel choiceLabel = new JLabel("是否保存本次游戏记录？");
-        choiceLabel.setFont(new Font("微软雅黑", Font.PLAIN, 18));
-        choiceLabel.setForeground(Color.WHITE);
-        choiceLabel.setBounds((Main.WINDOW_WIDTH - 200) / 2, 350, 200, 30);
-        choiceLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        add(choiceLabel);
-
-        JButton saveButton = createButton("保存记录", 150, 390);
-        saveButton.addActionListener(new ActionListener() {
+        JButton viewRankingButton = createButton("查看排行榜", 150, 350);
+        viewRankingButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                saveRecord();
-                showPostSaveOptions();
+                showRanking();
             }
         });
-        add(saveButton);
+        add(viewRankingButton);
 
-        JButton discardButton = createButton("不保存记录", 150, 440);
-        discardButton.addActionListener(new ActionListener() {
+        JButton restartButton = createButton("重新开始", 150, 400);
+        restartButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                showPostSaveOptions();
+                restartGame();
             }
         });
-        add(discardButton);
+        add(restartButton);
+
+        JButton mainMenuButton = createButton("返回主菜单", 150, 450);
+        mainMenuButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                backToMainMenu();
+            }
+        });
+        add(mainMenuButton);
 
         setComponentZOrder(backgroundLabel, getComponentCount() - 1);
     }
@@ -114,42 +115,12 @@ public class GameOverPanel extends JPanel {
         gameRecordDao.addRecord(record);
     }
 
-    private void showPostSaveOptions() {
-        removeAll();
-
-        Image backgroundImage = ImageManager.BACKGROUND_IMAGE;
-        JLabel backgroundLabel = new JLabel(new ImageIcon(backgroundImage));
-        backgroundLabel.setBounds(0, 0, Main.WINDOW_WIDTH, Main.WINDOW_HEIGHT);
-        add(backgroundLabel);
-
-        JLabel titleLabel = new JLabel("游戏结束");
-        titleLabel.setFont(new Font("微软雅黑", Font.BOLD, 36));
-        titleLabel.setForeground(Color.RED);
-        titleLabel.setBounds((Main.WINDOW_WIDTH - 200) / 2, 150, 200, 50);
-        titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        add(titleLabel);
-
-        JButton restartButton = createButton("重新开始", 150, 250);
-        restartButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                restartGame();
-            }
-        });
-        add(restartButton);
-
-        JButton mainMenuButton = createButton("返回主菜单", 150, 300);
-        mainMenuButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                backToMainMenu();
-            }
-        });
-        add(mainMenuButton);
-
-        setComponentZOrder(backgroundLabel, getComponentCount() - 1);
-        revalidate();
-        repaint();
+    private void showRanking() {
+        parentFrame.getContentPane().removeAll();
+        RankingPanel rankingPanel = new RankingPanel(parentFrame, this, score, enemiesKilled, playTime, userName, difficulty, initialDifficulty);
+        parentFrame.add(rankingPanel);
+        parentFrame.revalidate();
+        parentFrame.repaint();
     }
 
     private JLabel createDataLabel(String text, int y) {
