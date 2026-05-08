@@ -56,8 +56,7 @@ public class EliteEnemy extends EnemyAircraft {
         int speedY = this.getSpeedY();
         // 80%的概率掉落AddBullet道具
         if (Math.random() < 0.8) {
-            // 使用工厂模式创建道具
-            DropFactory factory = DropFactoryManager.getFactory("Hp");
+            DropFactory factory = DropFactoryManager.getFactory("AddBullet");
             res.add(factory.createDrop(x, y, speedX, speedY + 2));
         }
         return res;

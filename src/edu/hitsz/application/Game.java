@@ -81,6 +81,7 @@ public abstract class Game extends JPanel {
     protected int backgroundIndex = 0;
     protected String userName;
     protected SoundManager soundManager;
+    protected PlayerLevelManager levelManager;
 
     public Game(JFrame frame, String userName, int initialDifficulty) {
         this.parentFrame = frame;
@@ -93,10 +94,13 @@ public abstract class Game extends JPanel {
         heroAircraft = HeroAircraft.getInstance();
         heroAircraft.reset();
 
-        enemyAircrafts = new LinkedList<>();
-        heroBullets = new LinkedList<>();
-        enemyBullets = new LinkedList<>();
-        drops = new LinkedList<>();
+        enemyAircrafts = new CopyOnWriteArrayList<>();
+        heroBullets = new CopyOnWriteArrayList<>();
+        enemyBullets = new CopyOnWriteArrayList<>();
+        drops = new CopyOnWriteArrayList<>();
+
+        levelManager = PlayerLevelManager.getInstance();
+        levelManager.reset();
 
         new HeroController(this, heroAircraft);
         soundManager = new SoundManager();
@@ -227,15 +231,20 @@ public abstract class Game extends JPanel {
                         // 根据敌机类型给予不同分数
                         if (enemyAircraft instanceof Boss) {
                             score += 500;
+                            levelManager.addExp(500);
                             soundManager.stopBossBGM();
                         } else if (enemyAircraft instanceof EliteProEnemy) {
                             score += 100;
+                            levelManager.addExp(100);
                         } else if (enemyAircraft instanceof ElitePlusEnemy) {
                             score += 50;
+                            levelManager.addExp(50);
                         } else if (enemyAircraft instanceof EliteEnemy) {
                             score += 30;
+                            levelManager.addExp(30);
                         } else {
                             score += 10;
+                            levelManager.addExp(10);
                         }
                         enemiesKilled++;
                         List<Drop> newDrops = enemyAircraft.drop();
@@ -397,6 +406,24 @@ public abstract class Game extends JPanel {
         g.drawString("击杀: " + enemiesKilled, 10, 50);
         g.drawString("血量: " + heroAircraft.getHp(), 10, 75);
         g.drawString("难度: " + getDifficultyName(difficultyLevel), Main.WINDOW_WIDTH - 120, 25);
+        
+        int rightPanelX = Main.WINDOW_WIDTH - 150;
+        g.drawString("等级: " + levelManager.getLevel(), rightPanelX, 50);
+        
+        int expBarWidth = 120;
+        int expBarHeight = 8;
+        int expBarX = rightPanelX;
+        int expBarY = 65;
+        
+        g.setColor(new Color(50, 50, 50, 150));
+        g.fillRect(expBarX, expBarY, expBarWidth, expBarHeight);
+        
+        g.setColor(new Color(0, 255, 0));
+        g.fillRect(expBarX, expBarY, (int)(expBarWidth * levelManager.getExpProgress()), expBarHeight);
+        
+        g.setColor(Color.WHITE);
+        g.setFont(new Font("微软雅黑", Font.PLAIN, 12));
+        g.drawString(levelManager.getExp() + "/" + levelManager.getCurrentThreshold(), rightPanelX, 85);
     }
 
     protected BufferedImage getBackgroundImage() {

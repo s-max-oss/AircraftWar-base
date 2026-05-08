@@ -8,8 +8,8 @@ import edu.hitsz.bullet.HeroBullet;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,26 +37,27 @@ public class ImageManager {
     public static BufferedImage FREEZE_DROP_IMAGE;
     static {
         try {
+            ClassLoader classLoader = ImageManager.class.getClassLoader();
 
-            BACKGROUND_IMAGE = ImageIO.read(new FileInputStream("src/images/bg.jpg"));
-            BACKGROUND_IMAGE2 = ImageIO.read(new FileInputStream("src/images/bg2.jpg"));
-            BACKGROUND_IMAGE3 = ImageIO.read(new FileInputStream("src/images/bg3.jpg"));
-            BACKGROUND_IMAGE4 = ImageIO.read(new FileInputStream("src/images/bg4.jpg"));
-            BACKGROUND_IMAGE5 = ImageIO.read(new FileInputStream("src/images/bg5.jpg"));
+            BACKGROUND_IMAGE = ImageIO.read(classLoader.getResourceAsStream("images/bg.jpg"));
+            BACKGROUND_IMAGE2 = ImageIO.read(classLoader.getResourceAsStream("images/bg2.jpg"));
+            BACKGROUND_IMAGE3 = ImageIO.read(classLoader.getResourceAsStream("images/bg3.jpg"));
+            BACKGROUND_IMAGE4 = ImageIO.read(classLoader.getResourceAsStream("images/bg4.jpg"));
+            BACKGROUND_IMAGE5 = ImageIO.read(classLoader.getResourceAsStream("images/bg5.jpg"));
 
-            HERO_IMAGE = ImageIO.read(new FileInputStream("src/images/hero.png"));
-            MOB_ENEMY_IMAGE = ImageIO.read(new FileInputStream("src/images/mob.png"));
-            ELITE_ENEMY_IMAGE = ImageIO.read(new FileInputStream("src/images/elite.png"));
-            ELITE_PLUS_ENEMY_IMAGE = ImageIO.read(new FileInputStream("src/images/elitePlus.png"));
-            ELITE_PRO_ENEMY_IMAGE = ImageIO.read(new FileInputStream("src/images/elitePro.png"));
-            BOSS_IMAGE = ImageIO.read(new FileInputStream("src/images/boss.png"));
-            HERO_BULLET_IMAGE = ImageIO.read(new FileInputStream("src/images/bullet_hero.png"));
-            ENEMY_BULLET_IMAGE = ImageIO.read(new FileInputStream("src/images/bullet_enemy.png"));
-            HP_DROP_IMAGE = ImageIO.read(new FileInputStream("src/images/prop_blood.png"));
-            ADD_BULLET_DROP_IMAGE = ImageIO.read(new FileInputStream("src/images/prop_bullet.png"));
-            ADD_BULLET_PLUS_DROP_IMAGE = ImageIO.read(new FileInputStream("src/images/prop_bulletPlus.png"));
-            BOMB_DROP_IMAGE = ImageIO.read(new FileInputStream("src/images/prop_bomb.png"));
-            FREEZE_DROP_IMAGE = ImageIO.read(new FileInputStream("src/images/prop_freeze.png"));
+            HERO_IMAGE = ImageIO.read(classLoader.getResourceAsStream("images/hero.png"));
+            MOB_ENEMY_IMAGE = ImageIO.read(classLoader.getResourceAsStream("images/mob.png"));
+            ELITE_ENEMY_IMAGE = ImageIO.read(classLoader.getResourceAsStream("images/elite.png"));
+            ELITE_PLUS_ENEMY_IMAGE = ImageIO.read(classLoader.getResourceAsStream("images/elitePlus.png"));
+            ELITE_PRO_ENEMY_IMAGE = ImageIO.read(classLoader.getResourceAsStream("images/elitePro.png"));
+            BOSS_IMAGE = ImageIO.read(classLoader.getResourceAsStream("images/boss.png"));
+            HERO_BULLET_IMAGE = ImageIO.read(classLoader.getResourceAsStream("images/bullet_hero.png"));
+            ENEMY_BULLET_IMAGE = ImageIO.read(classLoader.getResourceAsStream("images/bullet_enemy.png"));
+            HP_DROP_IMAGE = ImageIO.read(classLoader.getResourceAsStream("images/prop_blood.png"));
+            ADD_BULLET_DROP_IMAGE = ImageIO.read(classLoader.getResourceAsStream("images/prop_bullet.png"));
+            ADD_BULLET_PLUS_DROP_IMAGE = ImageIO.read(classLoader.getResourceAsStream("images/prop_bulletPlus.png"));
+            BOMB_DROP_IMAGE = ImageIO.read(classLoader.getResourceAsStream("images/prop_bomb.png"));
+            FREEZE_DROP_IMAGE = ImageIO.read(classLoader.getResourceAsStream("images/prop_freeze.png"));
 
             CLASSNAME_IMAGE_MAP.put(HeroAircraft.class.getName(), HERO_IMAGE);
             CLASSNAME_IMAGE_MAP.put(MobEnemy.class.getName(), MOB_ENEMY_IMAGE);

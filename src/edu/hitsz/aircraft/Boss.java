@@ -47,31 +47,17 @@ public class Boss extends EnemyAircraft{
         int y = this.getLocationY();
         int speedX = 0;
         int speedY = this.getSpeedY();
-        // 50%的概率掉落Bomb道具
-        if (Math.random() < 0.2) {
-            // 使用工厂模式创建道具
-            DropFactory factory = DropFactoryManager.getFactory("Bomb");
-            res.add(factory.createDrop(x, y, speedX, speedY + 2));
-        }
-        else if (Math.random() < 0.4) {
-            // 使用工厂模式创建道具
-            DropFactory factory = DropFactoryManager.getFactory("Freeze");
-            res.add(factory.createDrop(x, y, speedX, speedY + 2));
-        }
-        else if (Math.random() < 0.6) {
-            // 使用工厂模式创建道具
-            DropFactory factory = DropFactoryManager.getFactory("AddBullet");
-            res.add(factory.createDrop(x, y, speedX, speedY + 2));
-        }
-        else if (Math.random() < 0.8) {
-            // 使用工厂模式创建道具
-            DropFactory factory = DropFactoryManager.getFactory("Hp");
-            res.add(factory.createDrop(x, y, speedX, speedY + 2));
-        }
-        else {
-            // 使用工厂模式创建道具
-            DropFactory factory = DropFactoryManager.getFactory("Bomb");
-            res.add(factory.createDrop(x, y, speedX, speedY + 2));
+        double rand = Math.random();
+        if (rand < 0.2) {
+            res.add(DropFactoryManager.getFactory("Bomb").createDrop(x, y, speedX, speedY + 2));
+        } else if (rand < 0.4) {
+            res.add(DropFactoryManager.getFactory("Freeze").createDrop(x, y, speedX, speedY + 2));
+        } else if (rand < 0.6) {
+            res.add(DropFactoryManager.getFactory("AddBullet").createDrop(x, y, speedX, speedY + 2));
+        } else if (rand < 0.8) {
+            res.add(DropFactoryManager.getFactory("Hp").createDrop(x, y, speedX, speedY + 2));
+        } else {
+            res.add(DropFactoryManager.getFactory("AddBulletPlus").createDrop(x, y, speedX, speedY + 2));
         }
         return res;
     }
