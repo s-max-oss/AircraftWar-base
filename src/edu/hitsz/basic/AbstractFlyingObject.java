@@ -5,6 +5,7 @@ import edu.hitsz.application.ImageManager;
 import edu.hitsz.application.Main;
 
 import java.awt.image.BufferedImage;
+import java.awt.Graphics;
 
 /**
  * 可飞行对象的基类
@@ -139,6 +140,17 @@ public abstract class AbstractFlyingObject {
 
     public boolean notValid() {
         return !this.isValid;
+    }
+
+    public boolean isValid() {
+        return this.isValid;
+    }
+
+    public void paint(Graphics g) {
+        BufferedImage img = getImage();
+        if (img != null) {
+            g.drawImage(img, locationX - getWidth() / 2, locationY - getHeight() / 2, null);
+        }
     }
 
 }

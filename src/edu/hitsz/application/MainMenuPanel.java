@@ -44,7 +44,7 @@ public class MainMenuPanel extends JPanel {
         difficultyLabel.setBounds((Main.WINDOW_WIDTH - 200) / 2 - 80, 245, 80, 30);
         add(difficultyLabel);
 
-        String[] difficulties = {"普通", "困难", "噩梦"};
+        String[] difficulties = {"简单", "普通", "困难"};
         difficultyComboBox = new JComboBox<>(difficulties);
         difficultyComboBox.setFont(new Font("微软雅黑", Font.PLAIN, 16));
         difficultyComboBox.setBounds((Main.WINDOW_WIDTH - 200) / 2 + 10, 245, 190, 30);
@@ -107,14 +107,21 @@ public class MainMenuPanel extends JPanel {
             userName = "玩家";
         }
         String difficulty = (String) difficultyComboBox.getSelectedItem();
-        int initialDifficulty = 1;
-        if ("困难".equals(difficulty)) {
-            initialDifficulty = 3;
-        } else if ("噩梦".equals(difficulty)) {
-            initialDifficulty = 5;
-        }
         parentFrame.getContentPane().removeAll();
-        Game game = new Game(parentFrame, userName, initialDifficulty);
+        
+        Game game;
+        switch (difficulty) {
+            case "简单":
+                game = new SimpleGame(parentFrame, userName);
+                break;
+            case "困难":
+                game = new HardGame(parentFrame, userName);
+                break;
+            default: // 普通
+                game = new NormalGame(parentFrame, userName);
+                break;
+        }
+        
         parentFrame.add(game);
         parentFrame.revalidate();
         parentFrame.repaint();

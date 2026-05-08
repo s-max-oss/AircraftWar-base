@@ -1,0 +1,85 @@
+@startuml 模板方法模式
+
+title 模板方法模式 - 游戏难度系统
+
+abstract class Game {
+    -timer: Timer
+    -heroAircraft: HeroAircraft
+    -enemyAircrafts: List<AbstractAircraft>
+    -score: int
+    -difficultyLevel: int
+    
+    +action(): void
+    +abstract spawnEnemyAircrafts(): void
+    +abstract updateDifficultyLevel(gameTime: long): void
+    +abstract printDifficultyInfo(): void
+    +abstract canSpawnBoss(): boolean
+    +abstract getBossHp(): int
+    
+    #heroShootAction(): void
+    #enemyShootAction(): void
+    #bulletsMoveAction(): void
+    #aircraftsMoveAction(): void
+    #crashCheckAction(): void
+    #postProcessAction(): void
+    #checkResultAction(): void
+}
+
+class SimpleGame {
+    +spawnEnemyAircrafts(): void
+    +updateDifficultyLevel(gameTime: long): void
+    +printDifficultyInfo(): void
+    +canSpawnBoss(): boolean
+    +getBossHp(): int
+}
+
+class NormalGame {
+    -bossSpawnCount: int
+    +spawnEnemyAircrafts(): void
+    +updateDifficultyLevel(gameTime: long): void
+    +printDifficultyInfo(): void
+    +canSpawnBoss(): boolean
+    +getBossHp(): int
+}
+
+class HardGame {
+    -bossSpawnCount: int
+    +spawnEnemyAircrafts(): void
+    +updateDifficultyLevel(gameTime: long): void
+    +printDifficultyInfo(): void
+    +canSpawnBoss(): boolean
+    +getBossHp(): int
+}
+
+Game <|-- SimpleGame
+Game <|-- NormalGame
+Game <|-- HardGame
+
+note left of Game
+  游戏抽象模板类
+  定义游戏主循环的骨架
+  action()方法作为模板方法
+end note
+
+note bottom of SimpleGame
+  简单难度
+  - 无法生成Boss
+  - 敌机攻击力较低
+  - 难度不提升
+end note
+
+note bottom of NormalGame
+  普通难度
+  - 可以生成Boss
+  - Boss血量固定
+  - 难度随时间递进
+end note
+
+note bottom of HardGame
+  困难难度
+  - 可以生成Boss
+  - Boss血量递增
+  - 难度随时间递进更快
+end note
+
+@enduml

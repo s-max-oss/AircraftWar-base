@@ -10,6 +10,11 @@ import edu.hitsz.basic.AbstractFlyingObject;
 public abstract class BaseBullet extends AbstractFlyingObject {
 
     private int power = 0;
+    
+    // 冰冻相关字段
+    protected long freezeEndTime = 0;
+    protected int originalSpeedX = 0;
+    protected int originalSpeedY = 0;
 
     public BaseBullet(int locationX, int locationY, int speedX, int speedY, int power) {
         super(locationX, locationY, speedX, speedY);
@@ -41,5 +46,34 @@ public abstract class BaseBullet extends AbstractFlyingObject {
     
     public void setPower(int power) {
         this.power = power;
+    }
+    
+    public int getSpeedX() {
+        return speedX;
+    }
+    
+    public void setSpeedX(int speedX) {
+        this.speedX = speedX;
+    }
+    
+    public void setSpeedY(int speedY) {
+        this.speedY = speedY;
+    }
+    
+    public void setFreezeEndTime(long time) {
+        this.freezeEndTime = time;
+    }
+    
+    public void setOriginalSpeed(int speedX, int speedY) {
+        this.originalSpeedX = speedX;
+        this.originalSpeedY = speedY;
+    }
+    
+    public void updateFreezeState() {
+        if (System.currentTimeMillis() >= freezeEndTime && freezeEndTime > 0) {
+            this.speedX = originalSpeedX;
+            this.speedY = originalSpeedY;
+            freezeEndTime = 0;
+        }
     }
 }

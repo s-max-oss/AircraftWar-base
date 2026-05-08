@@ -19,6 +19,16 @@ public abstract class AbstractAircraft extends AbstractFlyingObject {
     
     // 射击策略
     protected ShootStrategy shootStrategy;
+    
+    // 冰冻相关字段
+    protected long freezeEndTime = 0;
+    protected int originalSpeedX = 0;
+    protected int originalSpeedY = 0;
+    protected FreezeType freezeType = FreezeType.NONE;
+    
+    public enum FreezeType {
+        NONE, PERMANENT, TEMPORARY_3S, TEMPORARY_4S, TEMPORARY_5S, SLOW_5S
+    }
 
     public AbstractAircraft(int locationX, int locationY, int speedX, int speedY, int hp) {
         super(locationX, locationY, speedX, speedY);
@@ -90,6 +100,35 @@ public abstract class AbstractAircraft extends AbstractFlyingObject {
      */
     public List<Drop> drop() {
         return new LinkedList<>();
+    }
+    
+    public void setFreezeEndTime(long time) {
+        this.freezeEndTime = time;
+    }
+    
+    public void setOriginalSpeed(int speedX, int speedY) {
+        this.originalSpeedX = speedX;
+        this.originalSpeedY = speedY;
+    }
+    
+    public void setFreezeType(FreezeType type) {
+        this.freezeType = type;
+    }
+    
+    public FreezeType getFreezeType() {
+        return this.freezeType;
+    }
+    
+    public void updateFreezeState() {
+        if (freezeType == FreezeType.NONE || freezeType == FreezeType.PERMANENT) {
+            return;
+        }
+        
+        if (System.currentTimeMillis() >= freezeEndTime) {
+            this.speedX = originalSpeedX;
+            this.speedY = originalSpeedY;
+            freezeType = FreezeType.NONE;
+        }
     }
 
 }

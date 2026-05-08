@@ -153,7 +153,18 @@ public class GameOverPanel extends JPanel {
 
     private void restartGame() {
         parentFrame.getContentPane().removeAll();
-        Game game = new Game(parentFrame, userName, difficulty);
+        Game game;
+        switch (initialDifficulty) {
+            case 1:
+                game = new SimpleGame(parentFrame, userName);
+                break;
+            case 2:
+                game = new NormalGame(parentFrame, userName);
+                break;
+            default: // 3, 4, 5
+                game = new HardGame(parentFrame, userName);
+                break;
+        }
         parentFrame.add(game);
         parentFrame.revalidate();
         parentFrame.repaint();

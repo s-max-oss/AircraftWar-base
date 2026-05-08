@@ -1,0 +1,80 @@
+@startuml 观察者模式
+
+title 观察者模式 - 道具与敌机交互
+
+interface Observer {
+    +update(observable: Observable): void
+}
+
+interface Observable {
+    +addObserver(observer: Observer): void
+    +removeObserver(observer: Observer): void
+    +notifyObservers(): void
+    +getObservers(): List<Observer>
+}
+
+class Drop {
+    -observers: List<Observer>
+    +activate(heroAircraft: HeroAircraft): void
+    +addObserver(observer: Observer): void
+    +removeObserver(observer: Observer): void
+    +notifyObservers(): void
+    +getObservers(): List<Observer>
+}
+
+class Bomb {
+    +activate(heroAircraft: HeroAircraft): void
+    +activate(heroAircraft: HeroAircraft, game: Game): void
+}
+
+class Freeze {
+    +activate(heroAircraft: HeroAircraft): void
+    +activate(heroAircraft: HeroAircraft, game: Game): void
+}
+
+class EnemyObserver {
+    -enemy: AbstractAircraft
+    +EnemyObserver(enemy: AbstractAircraft)
+    +update(observable: Observable): void
+    +getEnemy(): AbstractAircraft
+}
+
+class AbstractAircraft {
+    +decreaseHp(damage: int): void
+    +vanish(): void
+    +setSpeedX(x: int): void
+    +setSpeedY(y: int): void
+}
+
+class Boss extends AbstractAircraft {
+}
+
+class MobEnemy extends AbstractAircraft {
+}
+
+Observable <|.. Drop
+Observer <|.. EnemyObserver
+Drop <|-- Bomb
+Drop <|-- Freeze
+EnemyObserver --> AbstractAircraft
+Bomb --> Observable : notify
+Freeze --> Observable : notify
+
+note left of Observer
+  观察者接口
+  定义更新方法
+end note
+
+note right of Observable
+  被观察者接口
+  定义添加/移除观察者和通知方法
+end note
+
+note bottom of EnemyObserver
+  敌机观察者
+  监听道具激活事件
+  炸弹：Boss减血，普通敌机消失
+  冰冻：Boss短暂冻结，普通敌机永久冻结
+end note
+
+@enduml

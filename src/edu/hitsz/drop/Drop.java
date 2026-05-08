@@ -3,12 +3,19 @@ package edu.hitsz.drop;
 import edu.hitsz.application.Main;
 import edu.hitsz.basic.AbstractFlyingObject;
 import edu.hitsz.aircraft.HeroAircraft;
+import edu.hitsz.observer.Observer;
+import edu.hitsz.observer.Observable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 所有掉落物的抽象父类
  * @author hitsz
  */
-public abstract class Drop extends AbstractFlyingObject {
+public abstract class Drop extends AbstractFlyingObject implements Observable {
+
+    protected List<Observer> observers = new ArrayList<>();
 
     public Drop(int locationX, int locationY, int speedX, int speedY) {
         super(locationX, locationY, speedX, speedY);
@@ -39,4 +46,25 @@ public abstract class Drop extends AbstractFlyingObject {
         activate(heroAircraft);
     }
 
+    @Override
+    public void addObserver(Observer observer) {
+        observers.add(observer);
+    }
+
+    @Override
+    public void removeObserver(Observer observer) {
+        observers.remove(observer);
+    }
+
+    @Override
+    public void notifyObservers() {
+        for (Observer observer : observers) {
+            observer.update(this);
+        }
+    }
+
+    @Override
+    public List<Observer> getObservers() {
+        return new ArrayList<>(observers);
+    }
 }

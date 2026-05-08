@@ -1,6 +1,9 @@
 package edu.hitsz.drop;
 
-import edu.hitsz.aircraft.HeroAircraft;
+import edu.hitsz.aircraft.*;
+import edu.hitsz.bullet.BaseBullet;
+
+import java.util.List;
 
 public class Bomb extends Drop {
 
@@ -10,15 +13,41 @@ public class Bomb extends Drop {
 
     @Override
     public void activate(HeroAircraft heroAircraft) {
-        // 无需实现具体功能
         vanish();
     }
     
     @Override
     public void activate(HeroAircraft heroAircraft, edu.hitsz.application.Game game) {
-        // 清除所有敌机和敌机子弹
-        game.clearEnemiesAndBullets();
-        // 道具使用后消失
+        List<AbstractAircraft> enemyAircrafts = game.getEnemyAircrafts();
+        List<BaseBullet> enemyBullets = game.getEnemyBullets();
+        
+        for (AbstractAircraft enemy : enemyAircrafts) {
+            if (enemy.isValid()) {
+                if (enemy instanceof Boss) {
+                    continue;
+                } else if (enemy instanceof EliteProEnemy) {
+                    enemy.decreaseHp(100);
+                } else {
+                    enemy.vanish();
+                    int score = 0;
+                    if (enemy instanceof EliteEnemy) {
+                        score = 30;
+                    } else if (enemy instanceof ElitePlusEnemy) {
+                        score = 50;
+                    } else if (enemy instanceof MobEnemy) {
+                        score = 10;
+                    }
+                    game.addScore(score);
+                }
+            }
+        }
+        
+        for (BaseBullet bullet : enemyBullets) {
+            if (bullet.isValid()) {
+                bullet.vanish();
+            }
+        }
+        
         vanish();
     }
 }
