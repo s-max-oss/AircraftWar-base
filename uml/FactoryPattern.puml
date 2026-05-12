@@ -1,12 +1,12 @@
 @startuml
 ' 工厂模式 UML 图
 
-' 定义接口
+' 定义敌机工厂接口
 interface EnemyAircraftFactory {
   +createAircraft(int locationX, int locationY, int difficultyLevel): AbstractAircraft
 }
 
-' 定义具体工厂类
+' 定义具体敌机工厂类
 class MobEnemyFactory {
   +createAircraft(int locationX, int locationY, int difficultyLevel): AbstractAircraft
 }
@@ -27,10 +27,42 @@ class BossEnemyFactory {
   +createAircraft(int locationX, int locationY, int difficultyLevel): AbstractAircraft
 }
 
-' 定义工厂管理器
+' 定义敌机工厂管理器
 class EnemyAircraftFactoryManager {
   -factoryMap: Map<String, EnemyAircraftFactory>
   +getFactory(String aircraftType): EnemyAircraftFactory
+}
+
+' 定义道具工厂接口
+interface DropFactory {
+  +createDrop(int locationX, int locationY, int speedX, int speedY): Drop
+}
+
+' 定义具体道具工厂类
+class HpDropFactory {
+  +createDrop(int locationX, int locationY, int speedX, int speedY): Drop
+}
+
+class AddBulletDropFactory {
+  +createDrop(int locationX, int locationY, int speedX, int speedY): Drop
+}
+
+class AddBulletPlusDropFactory {
+  +createDrop(int locationX, int locationY, int speedX, int speedY): Drop
+}
+
+class BombDropFactory {
+  +createDrop(int locationX, int locationY, int speedX, int speedY): Drop
+}
+
+class FreezeDropFactory {
+  +createDrop(int locationX, int locationY, int speedX, int speedY): Drop
+}
+
+' 定义道具工厂管理器
+class DropFactoryManager {
+  -factoryMap: Map<String, DropFactory>
+  +getFactory(String dropType): DropFactory
 }
 
 ' 定义产品类
@@ -40,29 +72,91 @@ class AbstractAircraft {
   -speedX: int
   -speedY: int
   -hp: int
+  -maxHp: int
+  +forward(): void
+  +shoot(): List<BaseBullet>
+  +drop(): List<Drop>
+  +decreaseHp(int decrease): void
+  +increaseHp(int increase): void
+  +getHp(): int
+}
+
+class MobEnemy {
+  +MobEnemy(int locationX, int locationY, int speedX, int speedY, int hp)
   +forward(): void
   +shoot(): List<BaseBullet>
   +drop(): List<Drop>
 }
 
-class MobEnemy {
-  +MobEnemy(int locationX, int locationY, int speedX, int speedY, int hp)
-}
-
 class EliteEnemy {
+  -shootNum: int
+  -power: int
+  -direction: int
   +EliteEnemy(int locationX, int locationY, int speedX, int speedY, int hp)
+  +forward(): void
+  +shoot(): List<BaseBullet>
+  +drop(): List<Drop>
 }
 
 class ElitePlusEnemy {
+  -shootNum: int
+  -power: int
+  -direction: int
   +ElitePlusEnemy(int locationX, int locationY, int speedX, int speedY, int hp)
+  +forward(): void
+  +shoot(): List<BaseBullet>
+  +drop(): List<Drop>
 }
 
 class EliteProEnemy {
+  -shootNum: int
+  -power: int
+  -direction: int
   +EliteProEnemy(int locationX, int locationY, int speedX, int speedY, int hp)
+  +forward(): void
+  +shoot(): List<BaseBullet>
+  +drop(): List<Drop>
 }
 
 class Boss {
+  -shootNum: int
+  -power: int
+  -direction: int
   +Boss(int locationX, int locationY, int speedX, int speedY, int hp)
+  +forward(): void
+  +shoot(): List<BaseBullet>
+  +drop(): List<Drop>
+}
+
+' 定义道具产品类
+abstract class Drop {
+  +activate(HeroAircraft hero, Game game): void
+  +forward(): void
+}
+
+class Hp {
+  +Hp(int locationX, int locationY, int speedX, int speedY)
+  +activate(HeroAircraft hero, Game game): void
+}
+
+class AddBullet {
+  +AddBullet(int locationX, int locationY, int speedX, int speedY)
+  +activate(HeroAircraft hero, Game game): void
+}
+
+class AddBulletPlus {
+  +AddBulletPlus(int locationX, int locationY, int speedX, int speedY)
+  +activate(HeroAircraft hero, Game game): void
+}
+
+class Bomb {
+  +Bomb(int locationX, int locationY, int speedX, int speedY)
+  +activate(HeroAircraft hero, Game game): void
+}
+
+class Freeze {
+  +Freeze(int locationX, int locationY, int speedX, int speedY)
+  +activate(HeroAircraft hero, Game game): void
 }
 
 ' 定义关系
@@ -78,14 +172,33 @@ ElitePlusEnemyFactory --> ElitePlusEnemy
 EliteProEnemyFactory --> EliteProEnemy
 BossEnemyFactory --> Boss
 
+DropFactory <|-- HpDropFactory
+DropFactory <|-- AddBulletDropFactory
+DropFactory <|-- AddBulletPlusDropFactory
+DropFactory <|-- BombDropFactory
+DropFactory <|-- FreezeDropFactory
+
+HpDropFactory --> Hp
+AddBulletDropFactory --> AddBullet
+AddBulletPlusDropFactory --> AddBulletPlus
+BombDropFactory --> Bomb
+FreezeDropFactory --> Freeze
+
 AbstractAircraft <|-- MobEnemy
 AbstractAircraft <|-- EliteEnemy
 AbstractAircraft <|-- ElitePlusEnemy
 AbstractAircraft <|-- EliteProEnemy
 AbstractAircraft <|-- Boss
 
+Drop <|-- Hp
+Drop <|-- AddBullet
+Drop <|-- AddBulletPlus
+Drop <|-- Bomb
+Drop <|-- Freeze
+
 EnemyAircraftFactoryManager ..> EnemyAircraftFactory
+DropFactoryManager ..> DropFactory
 
 ' 标题
-title 工厂模式 - 敌机创建
+title 工厂模式 - 敌机与道具创建
 @enduml

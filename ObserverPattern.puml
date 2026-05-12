@@ -10,25 +10,23 @@ interface Observable {
     +addObserver(observer: Observer): void
     +removeObserver(observer: Observer): void
     +notifyObservers(): void
-    +getObservers(): List<Observer>
 }
 
-class Drop {
+abstract class Drop {
     -observers: List<Observer>
-    +activate(heroAircraft: HeroAircraft): void
     +addObserver(observer: Observer): void
     +removeObserver(observer: Observer): void
     +notifyObservers(): void
-    +getObservers(): List<Observer>
+    +activate(heroAircraft: HeroAircraft, game: Game): void
 }
 
 class Bomb {
-    +activate(heroAircraft: HeroAircraft): void
+    +Bomb(int locationX, int locationY, int speedX, int speedY)
     +activate(heroAircraft: HeroAircraft, game: Game): void
 }
 
 class Freeze {
-    +activate(heroAircraft: HeroAircraft): void
+    +Freeze(int locationX, int locationY, int speedX, int speedY)
     +activate(heroAircraft: HeroAircraft, game: Game): void
 }
 
@@ -39,26 +37,61 @@ class EnemyObserver {
     +getEnemy(): AbstractAircraft
 }
 
-class AbstractAircraft {
+class BulletObserver {
+    -bullet: BaseBullet
+    +BulletObserver(bullet: BaseBullet)
+    +update(observable: Observable): void
+    +getBullet(): BaseBullet
+}
+
+abstract class AbstractAircraft {
     +decreaseHp(damage: int): void
     +vanish(): void
     +setSpeedX(x: int): void
     +setSpeedY(y: int): void
+    +updateFreezeState(): void
 }
 
-class Boss extends AbstractAircraft {
+class Boss {
+    +Boss(int locationX, int locationY, int speedX, int speedY, int hp)
 }
 
-class MobEnemy extends AbstractAircraft {
+class MobEnemy {
+    +MobEnemy(int locationX, int locationY, int speedX, int speedY, int hp)
+}
+
+class EliteEnemy {
+    +EliteEnemy(int locationX, int locationY, int speedX, int speedY, int hp)
+}
+
+class ElitePlusEnemy {
+    +ElitePlusEnemy(int locationX, int locationY, int speedX, int speedY, int hp)
+}
+
+class EliteProEnemy {
+    +EliteProEnemy(int locationX, int locationY, int speedX, int speedY, int hp)
+}
+
+abstract class BaseBullet {
+    +vanish(): void
+    +updateFreezeState(): void
 }
 
 Observable <|.. Drop
 Observer <|.. EnemyObserver
+Observer <|.. BulletObserver
+
 Drop <|-- Bomb
 Drop <|-- Freeze
+
 EnemyObserver --> AbstractAircraft
-Bomb --> Observable : notify
-Freeze --> Observable : notify
+BulletObserver --> BaseBullet
+
+AbstractAircraft <|-- Boss
+AbstractAircraft <|-- MobEnemy
+AbstractAircraft <|-- EliteEnemy
+AbstractAircraft <|-- ElitePlusEnemy
+AbstractAircraft <|-- EliteProEnemy
 
 note left of Observer
   观察者接口
@@ -74,7 +107,13 @@ note bottom of EnemyObserver
   敌机观察者
   监听道具激活事件
   炸弹：Boss减血，普通敌机消失
-  冰冻：Boss短暂冻结，普通敌机永久冻结
+  冰冻：冻结敌机移动
+end note
+
+note bottom of BulletObserver
+  子弹观察者
+  监听炸弹道具
+  炸弹激活时清除子弹
 end note
 
 @enduml

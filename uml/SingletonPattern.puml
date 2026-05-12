@@ -3,47 +3,87 @@
 
 ' 定义HeroAircraft类
 class HeroAircraft {
-  -static instance: HeroAircraft
-  -locationX: int
-  -locationY: int
-  -speedX: int
-  -speedY: int
-  -hp: int
-  -power: int
-  -shootNum: int
-  -direction: int
-  -cycle: int
+  - static volatile instance: HeroAircraft
+  - locationX: int
+  - locationY: int
+  - speedX: int
+  - speedY: int
+  - hp: int
+  - maxHp: int
+  - power: int
+  - shootNum: int
+  - direction: int
+  - originalShootNum: int
+  - originalPower: int
+  - powerUpTime: long
+  - static final POWER_UP_DURATION: long
+  - originalShootStrategy: ShootStrategy
+  - ringShootTime: long
+  - static final RING_SHOOT_DURATION: long
   
-  -HeroAircraft()
-  +static getInstance(): HeroAircraft
-  +reset(): void
-  +increaseHp(int hp): void
-  +decreaseHp(int damage): void
-  +shoot(): List<BaseBullet>
-  +forward(): void
-  +setLocation(int x, int y): void
-  +getLocationX(): int
-  +getLocationY(): int
-  +getHp(): int
+  - HeroAircraft(int locationX, int locationY, int speedX, int speedY, int hp)
+  + static getInstance(): HeroAircraft
+  + static resetInstance(): void
+  + reset(): void
+  + increaseHp(int increase): void
+  + increaseMaxHp(int increase): void
+  + decreaseHp(int damage): void
+  + setPowerTo(int aim): void
+  + increasePower(int increase): void
+  + increaseBulletNum(int increase): void
+  + checkPowerUpExpiration(): void
+  + activateRingShoot(): void
+  + shoot(): List<BaseBullet>
+  + forward(): void
+}
+
+' 定义PlayerLevelManager类
+class PlayerLevelManager {
+  - static instance: PlayerLevelManager
+  - hero: HeroAircraft
+  - level: int
+  - exp: int
+  - expThresholds: int[]
+  - hpBonuses: int[]
+  - powerBonuses: int[]
+  - static final SHOOT_SPEED_INTERVAL: double = 5
+  - static final SHOOT_SPEED_BONUS: double = 0.1
+  - static final MAX_SHOOT_SPEED_BONUS: double = 0.5
+  
+  - PlayerLevelManager()
+  + static getInstance(): PlayerLevelManager
+  + addExp(int amount): void
+  + getLevel(): int
+  + getExp(): int
+  + getExpToNextLevel(): int
+  + getCurrentThreshold(): int
+  + getExpProgress(): double
+  + getShootSpeedBonus(): double
+  + reset(): void
 }
 
 ' 定义使用HeroAircraft的类
 class Game {
-  -heroAircraft: HeroAircraft
-  +Game(JFrame frame)
-  +action(): void
+  - heroAircraft: HeroAircraft
+  - levelManager: PlayerLevelManager
+  + Game(JFrame frame, String userName, int initialDifficulty)
+  + action(): void
 }
 
 class HeroController {
-  -game: Game
-  -heroAircraft: HeroAircraft
-  +HeroController(Game game, HeroAircraft heroAircraft)
+  - game: Game
+  - heroAircraft: HeroAircraft
+  + HeroController(Game game, HeroAircraft heroAircraft)
 }
 
 ' 定义关系
+HeroAircraft ..> HeroAircraft : 单例
+PlayerLevelManager ..> PlayerLevelManager : 单例
+PlayerLevelManager --> HeroAircraft : 管理
 Game ..> HeroAircraft
+Game ..> PlayerLevelManager
 HeroController ..> HeroAircraft
 
 ' 标题
-title 单例模式 - HeroAircraft
+title 单例模式 - HeroAircraft & PlayerLevelManager
 @enduml

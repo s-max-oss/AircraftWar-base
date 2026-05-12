@@ -171,7 +171,9 @@ public abstract class Game extends JPanel {
 
     protected void heroShootAction() {
         shootHeroCounter++;
-        if (shootHeroCounter >= shootHeroCycle) {
+        double speedBonus = levelManager.getShootSpeedBonus();
+        double currentShootCycle = shootHeroCycle / (1 + speedBonus);
+        if (shootHeroCounter >= currentShootCycle) {
             shootHeroCounter = 0;
             List<BaseBullet> bullets = heroAircraft.shoot();
             heroBullets.addAll(bullets);
@@ -410,10 +412,16 @@ public abstract class Game extends JPanel {
         int rightPanelX = Main.WINDOW_WIDTH - 150;
         g.drawString("等级: " + levelManager.getLevel(), rightPanelX, 50);
         
+        double speedBonus = levelManager.getShootSpeedBonus();
+        if (speedBonus > 0) {
+            g.setFont(new Font("微软雅黑", Font.PLAIN, 12));
+            g.drawString("攻速+" + (int)(speedBonus * 100) + "%", rightPanelX, 65);
+        }
+        
         int expBarWidth = 120;
         int expBarHeight = 8;
         int expBarX = rightPanelX;
-        int expBarY = 65;
+        int expBarY = speedBonus > 0 ? 75 : 65;
         
         g.setColor(new Color(50, 50, 50, 150));
         g.fillRect(expBarX, expBarY, expBarWidth, expBarHeight);
@@ -423,7 +431,7 @@ public abstract class Game extends JPanel {
         
         g.setColor(Color.WHITE);
         g.setFont(new Font("微软雅黑", Font.PLAIN, 12));
-        g.drawString(levelManager.getExp() + "/" + levelManager.getCurrentThreshold(), rightPanelX, 85);
+        g.drawString(levelManager.getExp() + "/" + levelManager.getCurrentThreshold(), rightPanelX, expBarY + 20);
     }
 
     protected BufferedImage getBackgroundImage() {

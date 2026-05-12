@@ -6,8 +6,14 @@ abstract class Game {
     -timer: Timer
     -heroAircraft: HeroAircraft
     -enemyAircrafts: List<AbstractAircraft>
+    -heroBullets: List<BaseBullet>
+    -enemyBullets: List<BaseBullet>
+    -drops: List<Drop>
     -score: int
     -difficultyLevel: int
+    -initialDifficulty: int
+    -levelManager: PlayerLevelManager
+    -soundManager: SoundManager
     
     +action(): void
     +abstract spawnEnemyAircrafts(): void
@@ -23,9 +29,11 @@ abstract class Game {
     #crashCheckAction(): void
     #postProcessAction(): void
     #checkResultAction(): void
+    #updateFreezeState(): void
 }
 
 class SimpleGame {
+    +SimpleGame(JFrame frame, String userName)
     +spawnEnemyAircrafts(): void
     +updateDifficultyLevel(gameTime: long): void
     +printDifficultyInfo(): void
@@ -35,6 +43,8 @@ class SimpleGame {
 
 class NormalGame {
     -bossSpawnCount: int
+    -bossWarningShown: boolean
+    +NormalGame(JFrame frame, String userName)
     +spawnEnemyAircrafts(): void
     +updateDifficultyLevel(gameTime: long): void
     +printDifficultyInfo(): void
@@ -44,6 +54,8 @@ class NormalGame {
 
 class HardGame {
     -bossSpawnCount: int
+    -bossWarningShown: boolean
+    +HardGame(JFrame frame, String userName)
     +spawnEnemyAircrafts(): void
     +updateDifficultyLevel(gameTime: long): void
     +printDifficultyInfo(): void
@@ -51,14 +63,30 @@ class HardGame {
     +getBossHp(): int
 }
 
+class PlayerLevelManager {
+    -static instance: PlayerLevelManager
+    -level: int
+    -exp: int
+    -static final SHOOT_SPEED_INTERVAL: double = 5
+    -static final SHOOT_SPEED_BONUS: double = 0.1
+    -static final MAX_SHOOT_SPEED_BONUS: double = 0.5
+    +addExp(int amount): void
+    +getLevel(): int
+    +getExp(): int
+    +getShootSpeedBonus(): double
+}
+
 Game <|-- SimpleGame
 Game <|-- NormalGame
 Game <|-- HardGame
+Game --> PlayerLevelManager : 使用
 
 note left of Game
   游戏抽象模板类
   定义游戏主循环的骨架
   action()方法作为模板方法
+  包含PlayerLevelManager管理玩家等级
+  heroShootAction()应用攻速加成
 end note
 
 note bottom of SimpleGame
@@ -80,6 +108,7 @@ note bottom of HardGame
   - 可以生成Boss
   - Boss血量递增
   - 难度随时间递进更快
+  - 生成EliteProEnemy
 end note
 
 @enduml

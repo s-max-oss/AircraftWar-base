@@ -1,102 +1,102 @@
 @startuml
 ' 策略模式 UML 图
 
-' 定义策略接口
-interface DropStrategy {
-  +activate(HeroAircraft hero, Game game): void
+' 定义射击策略接口
+interface ShootStrategy {
+  +shoot(AbstractAircraft aircraft): List<BaseBullet>
 }
 
-' 定义具体策略类
-class HpDropStrategy {
-  +activate(HeroAircraft hero, Game game): void
+' 定义具体射击策略类
+class StraightShootStrategy {
+  -shootNum: int
+  -power: int
+  -direction: int
+  +StraightShootStrategy(int shootNum, int power, int direction)
+  +shoot(AbstractAircraft aircraft): List<BaseBullet>
 }
 
-class AddBulletDropStrategy {
-  +activate(HeroAircraft hero, Game game): void
+class ScatterShootStrategy {
+  -shootNum: int
+  -power: int
+  -direction: int
+  +ScatterShootStrategy(int shootNum, int power, int direction)
+  +shoot(AbstractAircraft aircraft): List<BaseBullet>
 }
 
-class AddBulletPlusDropStrategy {
-  +activate(HeroAircraft hero, Game game): void
-}
-
-class BombDropStrategy {
-  +activate(HeroAircraft hero, Game game): void
-}
-
-class FreezeDropStrategy {
-  +activate(HeroAircraft hero, Game game): void
+class RingShootStrategy {
+  -shootNum: int
+  -power: int
+  +RingShootStrategy(int shootNum, int power)
+  +shoot(AbstractAircraft aircraft): List<BaseBullet>
 }
 
 ' 定义上下文类
-class Drop {
-  -locationX: int
-  -locationY: int
-  -speedX: int
-  -speedY: int
-  -image: BufferedImage
-  -strategy: DropStrategy
-  
-  +Drop(int locationX, int locationY, int speedX, int speedY, BufferedImage image, DropStrategy strategy)
-  +activate(HeroAircraft hero, Game game): void
-  +forward(): void
-  +notValid(): boolean
-  +vanish(): void
-  +getImage(): BufferedImage
-  +getLocationX(): int
-  +getLocationY(): int
+class AbstractAircraft {
+  -shootStrategy: ShootStrategy
+  +setShootStrategy(ShootStrategy shootStrategy): void
+  +shoot(): List<BaseBullet>
 }
 
 ' 定义具体上下文类
-class Hp {
-  +Hp(int locationX, int locationY)
+class HeroAircraft {
+  -shootNum: int
+  -power: int
+  -direction: int
+  +HeroAircraft(int locationX, int locationY, int speedX, int speedY, int hp)
+  +shoot(): List<BaseBullet>
 }
 
-class AddBullet {
-  +AddBullet(int locationX, int locationY)
+class EliteEnemy {
+  -shootNum: int
+  -power: int
+  -direction: int
+  +EliteEnemy(int locationX, int locationY, int speedX, int speedY, int hp)
+  +shoot(): List<BaseBullet>
 }
 
-class AddBulletPlus {
-  +AddBulletPlus(int locationX, int locationY)
+class ElitePlusEnemy {
+  -shootNum: int
+  -power: int
+  -direction: int
+  +ElitePlusEnemy(int locationX, int locationY, int speedX, int speedY, int hp)
+  +shoot(): List<BaseBullet>
 }
 
-class Bomb {
-  +Bomb(int locationX, int locationY)
+class EliteProEnemy {
+  -shootNum: int
+  -power: int
+  -direction: int
+  +EliteProEnemy(int locationX, int locationY, int speedX, int speedY, int hp)
+  +shoot(): List<BaseBullet>
 }
 
-class Freeze {
-  +Freeze(int locationX, int locationY)
-}
-
-' 定义使用策略的类
-class Game {
-  -drops: List<Drop>
-  +clearEnemiesAndBullets(): void
-  +freezeEnemies(): void
+class Boss {
+  -shootNum: int
+  -power: int
+  -direction: int
+  +Boss(int locationX, int locationY, int speedX, int speedY, int hp)
+  +shoot(): List<BaseBullet>
 }
 
 ' 定义关系
-DropStrategy <|-- HpDropStrategy
-DropStrategy <|-- AddBulletDropStrategy
-DropStrategy <|-- AddBulletPlusDropStrategy
-DropStrategy <|-- BombDropStrategy
-DropStrategy <|-- FreezeDropStrategy
+ShootStrategy <|-- StraightShootStrategy
+ShootStrategy <|-- ScatterShootStrategy
+ShootStrategy <|-- RingShootStrategy
 
-Drop --> DropStrategy
+AbstractAircraft --> ShootStrategy : 使用
 
-Drop <|-- Hp
-Drop <|-- AddBullet
-Drop <|-- AddBulletPlus
-Drop <|-- Bomb
-Drop <|-- Freeze
+AbstractAircraft <|-- HeroAircraft
+AbstractAircraft <|-- EliteEnemy
+AbstractAircraft <|-- ElitePlusEnemy
+AbstractAircraft <|-- EliteProEnemy
+AbstractAircraft <|-- Boss
 
-Hp --> HpDropStrategy
-AddBullet --> AddBulletDropStrategy
-AddBulletPlus --> AddBulletPlusDropStrategy
-Bomb --> BombDropStrategy
-Freeze --> FreezeDropStrategy
-
-Game ..> Drop
+HeroAircraft --> ScatterShootStrategy : 默认使用
+EliteEnemy --> StraightShootStrategy : 使用
+ElitePlusEnemy --> ScatterShootStrategy : 使用
+EliteProEnemy --> ScatterShootStrategy : 使用
+Boss --> RingShootStrategy : 使用
 
 ' 标题
-title 策略模式 - 道具激活效果
+title 策略模式 - 射击策略
 @enduml

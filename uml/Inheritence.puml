@@ -1,81 +1,176 @@
 @startuml
-'https://plantuml.com/class-diagram
+' 继承关系 UML 图
 
-abstract class AbstractFlyingObject
-{
-    # locationX:int
-    # locationY:int
-    # speedX:int
-    # speedY:int
-    # image:BufferedImage
-    # width:int
-    # height:int
-    # isValid:boolean
-
-    + AbstractFlyingObject(int locationX, int locationY, int speedX, int speedY)
-    + forward():void
-    + crash(AbstractFlyingObject flyingObject):boolean
-    + setLocation(double locationX, double locationY):void
-    + getLocationX():int
-    + getLocationY():int
-    + getSpeedY():int
-    + getImage():BufferedImage
-    + getWidth():int
-    + getHeight():int
-    + notValid():boolean
-    + vanish():void
-}
-abstract class AbstractAircraft
-{
-	# maxHp:int
-    # hp:int
-    + AbstractAircraft(int locationX, int locationY, int speedX, int speedY, int hp)
-    + decreaseHp(int decrease):void
-    + getHp():int
-    + {abstract} shoot():List<BaseBullet>
- }
-
-
-class HeroAircraft {
-    - shootNum:int
-    - power:int
-    - direction:int
-    + HeroAircraft(int locationX, int locationY, int speedX, int speedY, int hp)
-    + forward():void
-    + shoot():List<BaseBullet>
+abstract class AbstractFlyingObject {
+    - locationX: int
+    - locationY: int
+    - speedX: int
+    - speedY: int
+    - image: BufferedImage
+    - width: int
+    - height: int
+    - isValid: boolean
+    + forward(): void
+    + crash(flyingObject: AbstractFlyingObject): boolean
+    + setLocation(locationX: double, locationY: double): void
+    + getLocationX(): int
+    + getLocationY(): int
+    + getSpeedY(): int
+    + getImage(): BufferedImage
+    + getWidth(): int
+    + getHeight(): int
+    + vanish(): void
+    + notValid(): boolean
 }
 
-AbstractAircraft <|-- HeroAircraft
-
-class MobEnemy {
-    + MobEnemy(int locationX, int locationY, int speedX, int speedY, int hp)
-    + forward():void
-    + shoot():List<BaseBullet>
-}
-AbstractAircraft <|-- MobEnemy
-
-abstract class BaseBullet
-{
-    - power:int
-    + BaseBullet(int locationX, int locationY, int speedX, int speedY, int power)
-    + forward():void
-	+ getPower():int
-}
-
-class HeroBullet {
-    + HeroBullet(int locationX, int locationY,
-     int speedX, int speedY, int power)
+abstract class AbstractAircraft extends AbstractFlyingObject {
+    - maxHp: int
+    - hp: int
+    - shootStrategy: ShootStrategy
+    - freezeEndTime: long
+    - originalSpeedX: int
+    - originalSpeedY: int
+    - freezeType: FreezeType
+    + AbstractAircraft(locationX: int, locationY: int, speedX: int, speedY: int, hp: int)
+    + decreaseHp(decrease: int): void
+    + increaseHp(increase: int): void
+    + increaseMaxHp(increase: int): void
+    + getHp(): int
+    + setShootStrategy(shootStrategy: ShootStrategy): void
+    + shoot(): List<BaseBullet>
+    + drop(): List<Drop>
+    + updateFreezeState(): void
 }
 
-class EnemyBullet {
-    + EnemyBullet(int locationX, int locationY,
-     int speedX, int speedY, int power)
+class HeroAircraft extends AbstractAircraft {
+    - static volatile instance: HeroAircraft
+    - shootNum: int
+    - power: int
+    - direction: int
+    - originalShootNum: int
+    - originalPower: int
+    - powerUpTime: long
+    - static final POWER_UP_DURATION: long
+    - originalShootStrategy: ShootStrategy
+    - ringShootTime: long
+    - static final RING_SHOOT_DURATION: long
+    - HeroAircraft(locationX: int, locationY: int, speedX: int, speedY: int, hp: int)
+    + static getInstance(): HeroAircraft
+    + static resetInstance(): void
+    + reset(): void
+    + increaseBulletNum(increase: int): void
+    + increasePower(increase: int): void
+    + setPowerTo(aim: int): void
+    + increaseMaxHp(increase: int): void
+    + checkPowerUpExpiration(): void
+    + activateRingShoot(): void
 }
 
-BaseBullet <|-- HeroBullet
-BaseBullet <|-- EnemyBullet
+abstract class EnemyAircraft extends AbstractAircraft {
+    + EnemyAircraft(locationX: int, locationY: int, speedX: int, speedY: int, hp: int)
+    + forward(): void
+    + shoot(): List<BaseBullet>
+    + drop(): List<Drop>
+}
 
-AbstractFlyingObject <|-- AbstractAircraft
-AbstractFlyingObject <|-- BaseBullet
+class MobEnemy extends EnemyAircraft {
+    + MobEnemy(locationX: int, locationY: int, speedX: int, speedY: int, hp: int)
+    + forward(): void
+    + shoot(): List<BaseBullet>
+    + drop(): List<Drop>
+}
+
+class EliteEnemy extends EnemyAircraft {
+    - shootNum: int
+    - power: int
+    - direction: int
+    + EliteEnemy(locationX: int, locationY: int, speedX: int, speedY: int, hp: int)
+    + forward(): void
+    + shoot(): List<BaseBullet>
+    + drop(): List<Drop>
+}
+
+class ElitePlusEnemy extends EnemyAircraft {
+    - shootNum: int
+    - power: int
+    - direction: int
+    + ElitePlusEnemy(locationX: int, locationY: int, speedX: int, speedY: int, hp: int)
+    + forward(): void
+    + shoot(): List<BaseBullet>
+    + drop(): List<Drop>
+}
+
+class EliteProEnemy extends EnemyAircraft {
+    - shootNum: int
+    - power: int
+    - direction: int
+    + EliteProEnemy(locationX: int, locationY: int, speedX: int, speedY: int, hp: int)
+    + forward(): void
+    + shoot(): List<BaseBullet>
+    + drop(): List<Drop>
+}
+
+class Boss extends EnemyAircraft {
+    - shootNum: int
+    - power: int
+    - direction: int
+    + Boss(locationX: int, locationY: int, speedX: int, speedY: int, hp: int)
+    + forward(): void
+    + shoot(): List<BaseBullet>
+    + drop(): List<Drop>
+}
+
+abstract class BaseBullet extends AbstractFlyingObject {
+    - power: int
+    + BaseBullet(locationX: int, locationY: int, speedX: int, speedY: int, power: int)
+    + forward(): void
+    + getPower(): int
+    + setPower(power: int): void
+    + vanish(): void
+    + updateFreezeState(): void
+}
+
+class HeroBullet extends BaseBullet {
+    + HeroBullet(locationX: int, locationY: int, speedX: int, speedY: int, power: int)
+}
+
+class EnemyBullet extends BaseBullet {
+    + EnemyBullet(locationX: int, locationY: int, speedX: int, speedY: int, power: int)
+}
+
+abstract class Drop extends AbstractFlyingObject {
+    - observers: List<Observer>
+    + Drop(locationX: int, locationY: int, speedX: int, speedY: int)
+    + forward(): void
+    + addObserver(observer: Observer): void
+    + removeObserver(observer: Observer): void
+    + notifyObservers(): void
+    + activate(heroAircraft: HeroAircraft, game: Game): void
+}
+
+class AddBullet extends Drop {
+    + AddBullet(locationX: int, locationY: int, speedX: int, speedY: int)
+    + activate(heroAircraft: HeroAircraft, game: Game): void
+}
+
+class AddBulletPlus extends Drop {
+    + AddBulletPlus(locationX: int, locationY: int, speedX: int, speedY: int)
+    + activate(heroAircraft: HeroAircraft, game: Game): void
+}
+
+class Bomb extends Drop {
+    + Bomb(locationX: int, locationY: int, speedX: int, speedY: int)
+    + activate(heroAircraft: HeroAircraft, game: Game): void
+}
+
+class Freeze extends Drop {
+    + Freeze(locationX: int, locationY: int, speedX: int, speedY: int)
+    + activate(heroAircraft: HeroAircraft, game: Game): void
+}
+
+class Hp extends Drop {
+    + Hp(locationX: int, locationY: int, speedX: int, speedY: int)
+    + activate(heroAircraft: HeroAircraft, game: Game): void
+}
 
 @enduml

@@ -1,0 +1,221 @@
+2.1 UML建模与分析
+
+说明：请基于面向对象设计原则，对"飞机大战"系统中的核心实体进行建模。并使用 PlantUML 插件绘制相应的 UML 类图及继承关系，类图中需包括英雄机、所有敌机、道具、子弹及它们所继承的父类。
+
+核心实体建模分析：
+
+1. 类层次结构
+系统采用四层继承体系：
+
+第一层（基类层）：
+AbstractFlyingObject：所有可飞行对象的基类，定义位置、速度、图像等基本属性，提供移动、碰撞检测等通用方法。
+
+第二层（抽象层）：
+AbstractAircraft：飞机抽象类，继承AbstractFlyingObject，扩展生命值、射击策略等属性。
+BaseBullet：子弹抽象类，继承AbstractFlyingObject，扩展攻击力属性。
+Drop：道具抽象类，继承AbstractFlyingObject并实现Observable接口，支持观察者模式。
+
+第三层（分类层）：
+EnemyAircraft：敌机抽象类，继承AbstractAircraft，定义敌机通用行为。
+
+第四层（具体实现层）：
+英雄机：HeroAircraft（单例模式）
+敌机：MobEnemy、EliteEnemy、ElitePlusEnemy、EliteProEnemy、Boss
+子弹：HeroBullet、EnemyBullet
+道具：Hp、AddBullet、AddBulletPlus、Bomb、Freeze
+
+2. 核心实体属性与方法
+AbstractFlyingObject核心属性：locationX, locationY（对象中心坐标）、speedX, speedY（移动速度）、image（对象图像）、isValid（生存状态标记）
+核心方法：forward()（根据速度移动）、crash()（碰撞检测）、vanish()（标记消失）、paint()（绘制对象）
+
+AbstractAircraft核心属性：maxHp, hp（最大生命值和当前生命值）、shootStrategy（射击策略）、freezeEndTime, freezeType（冰冻状态相关）
+核心方法：decreaseHp()/increaseHp()（生命值增减）、shoot()（执行射击）、drop()（掉落道具）、updateFreezeState()（更新冰冻状态）
+
+EnemyAircraft：敌机抽象类，继承AbstractAircraft，定义敌机行为框架
+HeroAircraft（单例）：玩家操控的英雄机，具有火力增强、环形射击等特殊能力
+
+敌机具体类型：
+MobEnemy：普通敌机，低血量低分数
+EliteEnemy：精英敌机，中等血量中等分数
+ElitePlusEnemy：强化精英敌机，较高血量较高分数
+EliteProEnemy：专业精英敌机，高血量高分数
+Boss：Boss敌机，超高血量，特殊攻击模式
+
+子弹类型：HeroBullet（英雄机子弹）、EnemyBullet（敌机子弹）
+道具类型：Hp（恢复生命值）、AddBullet（增加子弹数量）、AddBulletPlus（大幅增加子弹数量）、Bomb（清除屏幕上所有敌机子弹）、Freeze（冻结所有敌机和敌机子弹）
+
+3. 面向对象设计原则应用
+单一职责原则：每个类只负责一个职责，如AbstractAircraft负责飞机逻辑，Drop负责道具逻辑
+开闭原则：通过抽象类和接口扩展功能，如ShootStrategy接口支持新的射击策略
+里氏替换原则：子类可以替换父类使用，如EnemyAircraft子类均可作为EnemyAircraft使用
+依赖倒置原则：依赖抽象而非具体实现，如Game类依赖AbstractAircraft而非具体飞机类
+接口隔离原则：定义小而专的接口，如Observable接口只定义观察者相关方法
+迪米特法则：类之间尽量减少直接依赖，通过接口交互
+
+（UML图已生成，详见项目目录下的UML图文件）
+
+2.2 设计模式应用
+
+2.2.1 单例模式
+1. 应用场景分析
+单例模式在本游戏中主要应用于以下场景：
+HeroAircraft（英雄机）：游戏中只有一架英雄机供玩家操控，需要确保全局只有一个实例
+PlayerLevelManager（玩家等级管理器）：负责管理玩家的等级、经验、属性加成等，需要全局唯一
+ImageManager（图像管理器）：管理所有游戏图像资源，只需要加载一次
+
+设计中遇到的实际问题：
+如果多次创建HeroAircraft实例，会导致游戏逻辑混乱
+图像资源重复加载会浪费内存
+玩家等级信息需要在整个游戏流程中保持一致性
+
+使用单例模式解决此问题的优势：
+确保全局只有一个实例，避免资源浪费和逻辑错误
+提供全局访问点，方便各模块获取实例
+使用DCL（双重检查锁定）保证线程安全
+
+2. 设计模式结构图
+（详见项目目录下的SingletonPattern.puml文件）
+
+HeroAircraft类的关键属性：
+private static volatile HeroAircraft instance（单例实例）、private int shootNum（子弹数量）、private int power（子弹威力）、private int hp（生命值）
+关键方法：public static HeroAircraft getInstance()（获取单例实例）、public void reset()（重置英雄机状态）
+
+2.2.2 简单工厂模式
+1. 应用场景分析
+简单工厂模式应用于道具（Drop）的创建场景：
+DropFactoryManager作为工厂类，负责根据不同的道具类型创建对应的工厂实例
+包含HpDropFactory、AddBulletDropFactory、AddBulletPlusDropFactory、BombDropFactory、FreezeDropFactory等具体工厂
+
+设计中遇到的实际问题：
+需要根据不同情况创建不同类型的道具
+道具类型可能需要扩展，直接在代码中创建会违反开闭原则
+
+使用简单工厂模式解决此问题的优势：
+将对象创建与使用分离，降低耦合度
+集中管理所有道具的创建逻辑
+便于扩展新的道具类型
+
+2. 设计模式结构图
+（详见项目目录下的FactoryPattern.puml文件）
+
+DropFactoryManager类的关键属性：private static final Map<String, DropFactory> factoryMap（存储工厂实例的映射）
+关键方法：public static DropFactory getFactory(String dropType)（根据道具类型获取对应的工厂）
+
+2.2.3 工厂方法模式
+1. 应用场景分析
+工厂方法模式应用于敌机（EnemyAircraft）的创建场景：
+EnemyAircraftFactory作为抽象工厂接口
+包含MobEnemyFactory、EliteEnemyFactory、ElitePlusEnemyFactory、EliteProEnemyFactory、BossEnemyFactory等具体工厂
+
+设计中遇到的实际问题：
+不同难度的游戏需要生成不同类型和属性的敌机
+敌机类型众多，且属性可能随难度变化
+需要灵活配置不同难度下的敌机生成策略
+
+使用工厂方法模式解决此问题的优势：
+每个具体工厂负责创建一种敌机，符合单一职责原则
+易于扩展新的敌机类型
+可以根据不同的难度等级创建不同属性的敌机
+
+2. 设计模式结构图
+（详见项目目录下的FactoryPattern.puml文件）
+
+EnemyAircraftFactory接口的关键方法：AbstractAircraft createAircraft(int locationX, int locationY, int difficultyLevel)（创建敌机的工厂方法）
+
+2.2.4 策略模式
+1. 应用场景分析
+策略模式应用于射击策略（ShootStrategy）的场景：
+ShootStrategy作为策略接口
+包含StraightShootStrategy（直线射击）、ScatterShootStrategy（散射）、RingShootStrategy（环形射击）等具体策略
+
+设计中遇到的实际问题：
+不同飞机有不同的射击方式
+英雄机可以通过道具切换射击策略
+需要在运行时动态改变射击方式
+
+使用策略模式解决此问题的优势：
+将算法封装在独立的策略类中，易于理解和维护
+可以在运行时动态切换策略
+符合开闭原则，易于扩展新的射击策略
+
+2. 设计模式结构图
+（详见项目目录下的StrategyPattern.puml文件）
+
+ShootStrategy接口的关键方法：List<BaseBullet> shoot(AbstractAircraft aircraft)（执行射击操作）
+
+2.2.5 数据访问对象模式
+1. 应用场景分析
+数据访问对象（DAO）模式应用于游戏记录（GameRecord）的持久化场景：
+GameRecordDao作为数据访问接口
+GameRecordDaoImpl作为具体实现类
+负责游戏记录的增删改查操作
+
+设计中遇到的实际问题：
+需要将游戏记录保存到文件中
+需要支持按不同难度筛选记录
+需要对记录进行排序
+
+使用DAO模式解决此问题的优势：
+将数据访问逻辑与业务逻辑分离
+提供统一的数据访问接口
+便于切换数据存储方式（如从文件改为数据库）
+
+2. 设计模式结构图
+（详见项目目录下的UML.puml文件）
+
+GameRecordDao接口的关键方法：void addRecord(GameRecord record)（添加记录）、void removeRecord(int id)（删除记录）、List<GameRecord> getAllRecords()（获取所有记录）、List<GameRecord> getRecordsByInitialDifficulty(int initialDifficulty)（按难度筛选记录）
+
+2.2.6 观察者模式
+1. 应用场景分析
+观察者模式应用于炸弹（Bomb）和冰冻（Freeze）道具的激活场景：
+Observable作为被观察者接口
+Observer作为观察者接口
+Bomb和Freeze作为被观察者
+EnemyObserver作为观察者
+
+设计中遇到的实际问题：
+炸弹道具激活时需要消灭所有敌机和敌机子弹
+冰冻道具激活时需要冻结所有敌机和敌机子弹
+需要在道具激活时通知所有相关对象
+
+使用观察者模式解决此问题的优势：
+实现了对象间的松耦合
+支持一对多的依赖关系
+易于扩展新的观察者
+
+2. 设计模式结构图
+（详见项目目录下的ObserverPattern.puml文件）
+
+Observable接口的关键方法：void addObserver(Observer observer)（添加观察者）、void removeObserver(Observer observer)（移除观察者）、void notifyObservers()（通知所有观察者）
+
+2.2.7 模板方法模式
+1. 应用场景分析
+模板方法模式应用于游戏（Game）的场景：
+Game作为抽象模板类
+SimpleGame、NormalGame、HardGame作为具体子类
+定义了游戏的基本流程，将部分步骤延迟到子类实现
+
+设计中遇到的实际问题：
+不同难度的游戏有不同的敌机生成策略
+不同难度的游戏有不同的难度提升机制
+游戏的基本流程是相同的
+
+使用模板方法模式解决此问题的优势：
+定义了算法的骨架，将具体实现延迟到子类
+代码复用，避免重复代码
+符合开闭原则，易于扩展新的游戏难度
+
+2. 设计模式结构图
+（详见项目目录下的TemplatePattern.puml文件）
+
+Game类的关键模板方法：protected abstract void spawnEnemyAircrafts()（生成敌机）、protected abstract void updateDifficultyLevel(long gameTime)（更新难度等级）、protected abstract void printDifficultyInfo()（打印难度信息）、protected abstract boolean canSpawnBoss()（是否允许生成Boss）、protected abstract int getBossHp()（获取Boss血量）
+
+1 系统亮点与创新（可选）
+请简述你的系统在功能、性能、用户体验或架构设计上的独特之处。
+
+实现了完整的7种设计模式，架构清晰；包含玩家等级系统，通过击杀敌机获取经验升级；支持多种射击策略，包括直线射击、散射、环形射击；实现了冰冻道具，可以冻结敌机和敌机子弹；支持5种难度等级（简单、普通、困难、试炼、炼狱）；包含完整的游戏记录管理功能，可以查看历史记录；使用CopyOnWriteArrayList保证线程安全。
+
+2 收获与反思
+请总结本次实验的核心收获，并深入分析遇到的问题及解决方案。
+
+通过本次实验，深入理解了各种设计模式的应用场景和实现方式，学会了如何在实际项目中合理运用设计模式来提高代码的可维护性和可扩展性。遇到的主要问题包括：单例模式的线程安全问题，通过DCL双重检查锁定解决；观察者模式的通知机制，通过正确实现Observable和Observer接口解决；模板方法模式的抽象步骤设计，通过合理划分可变和不变部分解决。

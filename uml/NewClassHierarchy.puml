@@ -31,11 +31,19 @@ package "edu.hitsz.aircraft" {
     abstract class AbstractAircraft extends AbstractFlyingObject {
         - maxHp: int
         - hp: int
+        - shootStrategy: ShootStrategy
+        - freezeEndTime: long
+        - originalSpeedX: int
+        - originalSpeedY: int
+        - freezeType: FreezeType
         + decreaseHp(decrease: int): void
         + increaseHp(increase: int): void
+        + increaseMaxHp(increase: int): void
         + getHp(): int
+        + setShootStrategy(shootStrategy: ShootStrategy): void
         + shoot(): List<BaseBullet>
-        + drop(): List<AbstractFlyingObject>
+        + drop(): List<Drop>
+        + updateFreezeState(): void
     }
     
     class HeroAircraft extends AbstractAircraft {
@@ -43,13 +51,23 @@ package "edu.hitsz.aircraft" {
         - shootNum: int
         - power: int
         - direction: int
-        - private HeroAircraft(locationX: int, locationY: int, speedX: int, speedY: int, hp: int)
+        - originalShootNum: int
+        - originalPower: int
+        - powerUpTime: long
+        - static final POWER_UP_DURATION: long
+        - originalShootStrategy: ShootStrategy
+        - ringShootTime: long
+        - static final RING_SHOOT_DURATION: long
+        - HeroAircraft(locationX: int, locationY: int, speedX: int, speedY: int, hp: int)
         + static getInstance(): HeroAircraft
-        + static reset(): void
-        + increaseShootNum(increase: int): void
-        + setShootNumTo(aim: int): void
+        + static resetInstance(): void
+        + reset(): void
+        + increaseBulletNum(increase: int): void
         + increasePower(increase: int): void
         + setPowerTo(aim: int): void
+        + increaseMaxHp(increase: int): void
+        + checkPowerUpExpiration(): void
+        + activateRingShoot(): void
         + forward(): void
         + shoot(): List<BaseBullet>
     }
@@ -58,12 +76,14 @@ package "edu.hitsz.aircraft" {
         + EnemyAircraft(locationX: int, locationY: int, speedX: int, speedY: int, hp: int)
         + forward(): void
         + shoot(): List<BaseBullet>
+        + drop(): List<Drop>
     }
     
     class MobEnemy extends EnemyAircraft {
         + MobEnemy(locationX: int, locationY: int, speedX: int, speedY: int, hp: int)
         + forward(): void
         + shoot(): List<BaseBullet>
+        + drop(): List<Drop>
     }
     
     class EliteEnemy extends EnemyAircraft {
@@ -73,7 +93,7 @@ package "edu.hitsz.aircraft" {
         + EliteEnemy(locationX: int, locationY: int, speedX: int, speedY: int, hp: int)
         + forward(): void
         + shoot(): List<BaseBullet>
-        + drop(): List<AbstractFlyingObject>
+        + drop(): List<Drop>
     }
     
     class ElitePlusEnemy extends EnemyAircraft {
@@ -83,22 +103,64 @@ package "edu.hitsz.aircraft" {
         + ElitePlusEnemy(locationX: int, locationY: int, speedX: int, speedY: int, hp: int)
         + forward(): void
         + shoot(): List<BaseBullet>
-        + drop(): List<AbstractFlyingObject>
+        + drop(): List<Drop>
+    }
+    
+    class EliteProEnemy extends EnemyAircraft {
+        - shootNum: int
+        - power: int
+        - direction: int
+        + EliteProEnemy(locationX: int, locationY: int, speedX: int, speedY: int, hp: int)
+        + forward(): void
+        + shoot(): List<BaseBullet>
+        + drop(): List<Drop>
+    }
+    
+    class Boss extends EnemyAircraft {
+        - shootNum: int
+        - power: int
+        - direction: int
+        + Boss(locationX: int, locationY: int, speedX: int, speedY: int, hp: int)
+        + forward(): void
+        + shoot(): List<BaseBullet>
+        + drop(): List<Drop>
     }
 }
 
 package "edu.hitsz.drop" {
     abstract class Drop extends AbstractFlyingObject {
+        - observers: List<Observer>
         + Drop(locationX: int, locationY: int, speedX: int, speedY: int)
         + forward(): void
-        + activate(heroAircraft: HeroAircraft): void
+        + addObserver(observer: Observer): void
+        + removeObserver(observer: Observer): void
+        + notifyObservers(): void
+        + activate(heroAircraft: HeroAircraft, game: Game): void
     }
     
     class Hp extends Drop {
-        - restoreHp: int
         + Hp(locationX: int, locationY: int, speedX: int, speedY: int)
-        + activate(heroAircraft: HeroAircraft): void
-        + getRestoreHp(): int
+        + activate(heroAircraft: HeroAircraft, game: Game): void
+    }
+    
+    class AddBullet extends Drop {
+        + AddBullet(locationX: int, locationY: int, speedX: int, speedY: int)
+        + activate(heroAircraft: HeroAircraft, game: Game): void
+    }
+    
+    class AddBulletPlus extends Drop {
+        + AddBulletPlus(locationX: int, locationY: int, speedX: int, speedY: int)
+        + activate(heroAircraft: HeroAircraft, game: Game): void
+    }
+    
+    class Bomb extends Drop {
+        + Bomb(locationX: int, locationY: int, speedX: int, speedY: int)
+        + activate(heroAircraft: HeroAircraft, game: Game): void
+    }
+    
+    class Freeze extends Drop {
+        + Freeze(locationX: int, locationY: int, speedX: int, speedY: int)
+        + activate(heroAircraft: HeroAircraft, game: Game): void
     }
 }
 
@@ -108,6 +170,9 @@ package "edu.hitsz.bullet" {
         + BaseBullet(locationX: int, locationY: int, speedX: int, speedY: int, power: int)
         + forward(): void
         + getPower(): int
+        + setPower(power: int): void
+        + vanish(): void
+        + updateFreezeState(): void
     }
     
     class HeroBullet extends BaseBullet {
@@ -118,5 +183,32 @@ package "edu.hitsz.bullet" {
         + EnemyBullet(locationX: int, locationY: int, speedX: int, speedY: int, power: int)
     }
 }
+
+package "edu.hitsz.application" {
+    class PlayerLevelManager {
+        - static instance: PlayerLevelManager
+        - hero: HeroAircraft
+        - level: int
+        - exp: int
+        - expThresholds: int[]
+        - hpBonuses: int[]
+        - powerBonuses: int[]
+        - static final SHOOT_SPEED_INTERVAL: double = 5
+        - static final SHOOT_SPEED_BONUS: double = 0.1
+        - static final MAX_SHOOT_SPEED_BONUS: double = 0.5
+        + static getInstance(): PlayerLevelManager
+        + addExp(amount: int): void
+        + getLevel(): int
+        + getExp(): int
+        + getExpToNextLevel(): int
+        + getCurrentThreshold(): int
+        + getExpProgress(): double
+        + getShootSpeedBonus(): double
+        + reset(): void
+    }
+}
+
+' 关系
+PlayerLevelManager --> HeroAircraft : 管理
 
 @enduml
