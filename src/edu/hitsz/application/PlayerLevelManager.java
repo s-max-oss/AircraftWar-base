@@ -59,6 +59,7 @@ public class PlayerLevelManager {
             }
         }
         System.out.println("========================================");
+        SoundManager.getInstance().playLevelUpSound();
     }
     
     private void applyLevelBonus() {

@@ -4,11 +4,15 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 public class MainMenuPanel extends JPanel {
     private JFrame parentFrame;
     private JTextField nameField;
     private JComboBox<String> difficultyComboBox;
+    private JSlider bgmSlider;
+    private JSlider soundEffectSlider;
 
     public MainMenuPanel(JFrame frame) {
         this.parentFrame = frame;
@@ -50,7 +54,41 @@ public class MainMenuPanel extends JPanel {
         difficultyComboBox.setBounds((Main.WINDOW_WIDTH - 200) / 2 + 10, 245, 190, 30);
         add(difficultyComboBox);
 
-        JButton startButton = createButton("开始游戏", 150, 310);
+        JLabel bgmVolumeLabel = new JLabel("背景音乐:");
+        bgmVolumeLabel.setFont(new Font("微软雅黑", Font.PLAIN, 16));
+        bgmVolumeLabel.setForeground(Color.WHITE);
+        bgmVolumeLabel.setBounds((Main.WINDOW_WIDTH - 200) / 2 - 80, 290, 80, 25);
+        add(bgmVolumeLabel);
+
+        bgmSlider = new JSlider(JSlider.HORIZONTAL, 0, 100, (int)(SoundManager.getInstance().getBgmVolume() * 100));
+        bgmSlider.setBounds((Main.WINDOW_WIDTH - 200) / 2 + 10, 290, 190, 25);
+        bgmSlider.setBackground(new Color(0, 0, 0, 100));
+        bgmSlider.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                SoundManager.getInstance().setBgmVolume(bgmSlider.getValue() / 100f);
+            }
+        });
+        add(bgmSlider);
+
+        JLabel soundEffectLabel = new JLabel("音效音量:");
+        soundEffectLabel.setFont(new Font("微软雅黑", Font.PLAIN, 16));
+        soundEffectLabel.setForeground(Color.WHITE);
+        soundEffectLabel.setBounds((Main.WINDOW_WIDTH - 200) / 2 - 80, 320, 80, 25);
+        add(soundEffectLabel);
+
+        soundEffectSlider = new JSlider(JSlider.HORIZONTAL, 0, 100, (int)(SoundManager.getInstance().getSoundEffectVolume() * 100));
+        soundEffectSlider.setBounds((Main.WINDOW_WIDTH - 200) / 2 + 10, 320, 190, 25);
+        soundEffectSlider.setBackground(new Color(0, 0, 0, 100));
+        soundEffectSlider.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                SoundManager.getInstance().setSoundEffectVolume(soundEffectSlider.getValue() / 100f);
+            }
+        });
+        add(soundEffectSlider);
+
+        JButton startButton = createButton("开始游戏", 150, 370);
         startButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -59,7 +97,7 @@ public class MainMenuPanel extends JPanel {
         });
         add(startButton);
 
-        JButton recordButton = createButton("游戏记录", 150, 370);
+        JButton recordButton = createButton("游戏记录", 150, 430);
         recordButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -68,7 +106,7 @@ public class MainMenuPanel extends JPanel {
         });
         add(recordButton);
 
-        JButton rankingButton = createButton("排行榜", 150, 430);
+        JButton rankingButton = createButton("排行榜", 150, 490);
         rankingButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -77,7 +115,7 @@ public class MainMenuPanel extends JPanel {
         });
         add(rankingButton);
 
-        JButton exitButton = createButton("退出游戏", 150, 490);
+        JButton exitButton = createButton("退出游戏", 150, 550);
         exitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -108,7 +146,7 @@ public class MainMenuPanel extends JPanel {
         }
         String difficulty = (String) difficultyComboBox.getSelectedItem();
         parentFrame.getContentPane().removeAll();
-        
+
         Game game;
         switch (difficulty) {
             case "简单":
@@ -117,11 +155,11 @@ public class MainMenuPanel extends JPanel {
             case "困难":
                 game = new HardGame(parentFrame, userName);
                 break;
-            default: // 普通
+            default:
                 game = new NormalGame(parentFrame, userName);
                 break;
         }
-        
+
         parentFrame.add(game);
         parentFrame.revalidate();
         parentFrame.repaint();

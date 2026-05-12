@@ -103,7 +103,7 @@ public abstract class Game extends JPanel {
         levelManager.reset();
 
         new HeroController(this, heroAircraft);
-        soundManager = new SoundManager();
+        soundManager = SoundManager.getInstance();
         this.timer = new Timer("game-action-timer", true);
     }
 

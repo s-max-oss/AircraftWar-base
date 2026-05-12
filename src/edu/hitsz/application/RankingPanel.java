@@ -212,6 +212,8 @@ public class RankingPanel extends JPanel {
     }
 
     private void backToMainMenu() {
+        SoundManager.getInstance().stopBGM();
+        SoundManager.getInstance().stopBossBGM();
         parentFrame.getContentPane().removeAll();
         MainMenuPanel mainMenuPanel = new MainMenuPanel(parentFrame);
         parentFrame.add(mainMenuPanel);

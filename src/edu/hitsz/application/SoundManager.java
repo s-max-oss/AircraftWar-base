@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.IOException;
 
 public class SoundManager {
+    private static SoundManager instance;
+
     private Clip bgmClip;
     private Clip bossBgmClip;
     private Clip hitClip;
@@ -13,9 +15,22 @@ public class SoundManager {
     private Clip gameOverClip;
 
     private boolean isBossActive = false;
+    private float bgmVolume = 0.7f;
+    private float soundEffectVolume = 0.8f;
 
-    public SoundManager() {
+    private SoundManager() {
         loadSounds();
+    }
+
+    public static SoundManager getInstance() {
+        if (instance == null) {
+            synchronized (SoundManager.class) {
+                if (instance == null) {
+                    instance = new SoundManager();
+                }
+            }
+        }
+        return instance;
     }
 
     private void loadSounds() {
@@ -27,7 +42,6 @@ public class SoundManager {
             powerUpClip = loadClip("src/videos/get_supply.wav");
             gameOverClip = loadClip("src/videos/game_over.wav");
         } catch (Exception e) {
-            System.out.println("音效文件加载失败: " + e.getMessage());
         }
     }
 
@@ -45,6 +59,7 @@ public class SoundManager {
     public void playBGM() {
         stopBGM();
         if (bgmClip != null && !isBossActive) {
+            setClipVolume(bgmClip, bgmVolume);
             bgmClip.loop(Clip.LOOP_CONTINUOUSLY);
         }
     }
@@ -60,6 +75,7 @@ public class SoundManager {
         stopBGM();
         isBossActive = true;
         if (bossBgmClip != null) {
+            setClipVolume(bossBgmClip, bgmVolume);
             bossBgmClip.loop(Clip.LOOP_CONTINUOUSLY);
         }
     }
@@ -85,6 +101,10 @@ public class SoundManager {
         playSound(powerUpClip);
     }
 
+    public void playLevelUpSound() {
+        playSound(gameOverClip);
+    }
+
     public void playGameOverSound() {
         stopBGM();
         stopBossBGM();
@@ -93,10 +113,45 @@ public class SoundManager {
 
     private void playSound(Clip clip) {
         if (clip != null) {
+            setClipVolume(clip, soundEffectVolume);
             clip.stop();
             clip.setFramePosition(0);
             clip.start();
         }
+    }
+
+    private void setClipVolume(Clip clip, float volume) {
+        if (clip != null) {
+            try {
+                FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+                float range = gainControl.getMaximum() - gainControl.getMinimum();
+                float gain = (range * volume) + gainControl.getMinimum();
+                gainControl.setValue(gain);
+            } catch (Exception e) {
+            }
+        }
+    }
+
+    public void setBgmVolume(float volume) {
+        this.bgmVolume = Math.max(0.0f, Math.min(1.0f, volume));
+        if (bgmClip != null && bgmClip.isRunning()) {
+            setClipVolume(bgmClip, bgmVolume);
+        }
+        if (bossBgmClip != null && bossBgmClip.isRunning()) {
+            setClipVolume(bossBgmClip, bgmVolume);
+        }
+    }
+
+    public float getBgmVolume() {
+        return bgmVolume;
+    }
+
+    public void setSoundEffectVolume(float volume) {
+        this.soundEffectVolume = Math.max(0.0f, Math.min(1.0f, volume));
+    }
+
+    public float getSoundEffectVolume() {
+        return soundEffectVolume;
     }
 
     public void close() {
