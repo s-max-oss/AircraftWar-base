@@ -20,12 +20,12 @@ public class SoundManager {
 
     private void loadSounds() {
         try {
-            bgmClip = loadClip("src/sounds/bgm.wav");
-            bossBgmClip = loadClip("src/sounds/boss_bgm.wav");
-            hitClip = loadClip("src/sounds/hit.wav");
-            bombClip = loadClip("src/sounds/bomb.wav");
-            powerUpClip = loadClip("src/sounds/powerup.wav");
-            gameOverClip = loadClip("src/sounds/gameover.wav");
+            bgmClip = loadClip("src/videos/bgm.wav");
+            bossBgmClip = loadClip("src/videos/bgm_boss.wav");
+            hitClip = loadClip("src/videos/bullet_hit.wav");
+            bombClip = loadClip("src/videos/bomb_explosion.wav");
+            powerUpClip = loadClip("src/videos/get_supply.wav");
+            gameOverClip = loadClip("src/videos/game_over.wav");
         } catch (Exception e) {
             System.out.println("音效文件加载失败: " + e.getMessage());
         }
