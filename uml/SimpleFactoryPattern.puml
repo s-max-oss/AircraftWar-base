@@ -1,0 +1,98 @@
+@startuml 简单工厂模式
+
+title 简单工厂模式 - 道具创建
+
+interface DropFactory {
+    +createDrop(locationX: int, locationY: int, speedX: int, speedY: int): Drop
+}
+
+class HpDropFactory implements DropFactory {
+    +createDrop(locationX: int, locationY: int, speedX: int, speedY: int): Drop
+}
+
+class AddBulletDropFactory implements DropFactory {
+    +createDrop(locationX: int, locationY: int, speedX: int, speedY: int): Drop
+}
+
+class AddBulletPlusDropFactory implements DropFactory {
+    +createDrop(locationX: int, locationY: int, speedX: int, speedY: int): Drop
+}
+
+class BombDropFactory implements DropFactory {
+    +createDrop(locationX: int, locationY: int, speedX: int, speedY: int): Drop
+}
+
+class FreezeDropFactory implements DropFactory {
+    +createDrop(locationX: int, locationY: int, speedX: int, speedY: int): Drop
+}
+
+class DropFactoryManager {
+    -static factoryMap: Map<String, DropFactory>
+    +static getFactory(dropType: String): DropFactory
+}
+
+abstract class Drop {
+    +activate(heroAircraft: HeroAircraft, game: Game): void
+}
+
+class Hp extends Drop {
+    +Hp(locationX: int, locationY: int, speedX: int, speedY: int)
+}
+
+class AddBullet extends Drop {
+    +AddBullet(locationX: int, locationY: int, speedX: int, speedY: int)
+}
+
+class AddBulletPlus extends Drop {
+    +AddBulletPlus(locationX: int, locationY: int, speedX: int, speedY: int)
+}
+
+class Bomb extends Drop {
+    +Bomb(locationX: int, locationY: int, speedX: int, speedY: int)
+}
+
+class Freeze extends Drop {
+    +Freeze(locationX: int, locationY: int, speedX: int, speedY: int)
+}
+
+class EnemyAircraft {
+    -dropFactoryManager: DropFactoryManager
+    +drop(): List<Drop>
+}
+
+DropFactoryManager ..> DropFactory : 管理
+
+DropFactory <|.. HpDropFactory
+DropFactory <|.. AddBulletDropFactory
+DropFactory <|.. AddBulletPlusDropFactory
+DropFactory <|.. BombDropFactory
+DropFactory <|.. FreezeDropFactory
+
+HpDropFactory --> Hp
+AddBulletDropFactory --> AddBullet
+AddBulletPlusDropFactory --> AddBulletPlus
+BombDropFactory --> Bomb
+FreezeDropFactory --> Freeze
+
+Drop <|-- Hp
+Drop <|-- AddBullet
+Drop <|-- AddBulletPlus
+Drop <|-- Bomb
+Drop <|-- Freeze
+
+EnemyAircraft ..> DropFactoryManager : 使用
+
+note left of DropFactoryManager
+  简单工厂管理器
+  通过静态方法getFactory()获取具体工厂
+  内部维护工厂实例映射表
+  支持动态注册新的道具类型
+end note
+
+note right of DropFactory
+  道具工厂接口
+  定义创建道具的标准方法
+  所有具体工厂必须实现此接口
+end note
+
+@enduml

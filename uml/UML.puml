@@ -160,7 +160,10 @@ interface Observable {
 
 class EnemyObserver implements Observer {
   - enemy: AbstractAircraft
+  - bullet: BaseBullet
+  - isBullet: boolean
   + EnemyObserver(AbstractAircraft)
+  + EnemyObserver(BaseBullet)
   + update(Observable): void
 }
 
@@ -196,7 +199,13 @@ abstract class AbstractAircraft extends AbstractFlyingObject {
   + updateFreezeState(): void
 }
 
-class Boss extends AbstractAircraft {
+abstract class EnemyAircraft extends AbstractAircraft {
+  + forward(): void
+  + shoot(): List<BaseBullet>
+  + drop(): List<Drop>
+}
+
+class Boss extends EnemyAircraft {
   - shootNum: int
   - power: int
   - direction: int
@@ -205,7 +214,7 @@ class Boss extends AbstractAircraft {
   + drop(): List<Drop>
 }
 
-class EliteEnemy extends AbstractAircraft {
+class EliteEnemy extends EnemyAircraft {
   - shootNum: int
   - power: int
   - direction: int
@@ -214,7 +223,7 @@ class EliteEnemy extends AbstractAircraft {
   + drop(): List<Drop>
 }
 
-class ElitePlusEnemy extends AbstractAircraft {
+class ElitePlusEnemy extends EnemyAircraft {
   - shootNum: int
   - power: int
   - direction: int
@@ -223,7 +232,7 @@ class ElitePlusEnemy extends AbstractAircraft {
   + drop(): List<Drop>
 }
 
-class EliteProEnemy extends AbstractAircraft {
+class EliteProEnemy extends EnemyAircraft {
   - shootNum: int
   - power: int
   - direction: int
@@ -232,7 +241,7 @@ class EliteProEnemy extends AbstractAircraft {
   + drop(): List<Drop>
 }
 
-class MobEnemy extends AbstractAircraft {
+class MobEnemy extends EnemyAircraft {
   + MobEnemy(int, int, int, int, int)
   + forward(): void
   + drop(): List<Drop>

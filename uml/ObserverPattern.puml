@@ -32,16 +32,18 @@ class Freeze {
 
 class EnemyObserver {
     -enemy: AbstractAircraft
+    -bullet: BaseBullet
+    -isBullet: boolean
+    -freezeEndTime: long
+    -originalSpeedX: int
+    -originalSpeedY: int
+    -freezeType: FreezeType
     +EnemyObserver(enemy: AbstractAircraft)
+    +EnemyObserver(bullet: BaseBullet)
     +update(observable: Observable): void
     +getEnemy(): AbstractAircraft
-}
-
-class BulletObserver {
-    -bullet: BaseBullet
-    +BulletObserver(bullet: BaseBullet)
-    +update(observable: Observable): void
     +getBullet(): BaseBullet
+    +updateFreezeState(): void
 }
 
 abstract class AbstractAircraft {
@@ -79,13 +81,9 @@ abstract class BaseBullet {
 
 Observable <|.. Drop
 Observer <|.. EnemyObserver
-Observer <|.. BulletObserver
 
 Drop <|-- Bomb
 Drop <|-- Freeze
-
-EnemyObserver --> AbstractAircraft
-BulletObserver --> BaseBullet
 
 AbstractAircraft <|-- Boss
 AbstractAircraft <|-- MobEnemy
@@ -104,16 +102,10 @@ note right of Observable
 end note
 
 note bottom of EnemyObserver
-  敌机观察者
+  敌机/子弹观察者
   监听道具激活事件
-  炸弹：Boss减血，普通敌机消失
-  冰冻：冻结敌机移动
-end note
-
-note bottom of BulletObserver
-  子弹观察者
-  监听炸弹道具
-  炸弹激活时清除子弹
+  炸弹：Boss减血，普通敌机消失，子弹消失
+  冰冻：冻结敌机和子弹移动
 end note
 
 @enduml

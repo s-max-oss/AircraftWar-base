@@ -1,0 +1,80 @@
+@startuml DAO模式
+
+title DAO模式 - 游戏记录数据访问
+
+interface GameRecordDao {
+    +addRecord(record: GameRecord): void
+    +removeRecord(id: int): void
+    +getAllRecords(): List<GameRecord>
+    +getRecordsByInitialDifficulty(initialDifficulty: int): List<GameRecord>
+    +clearAllRecords(): void
+}
+
+class GameRecordDaoImpl implements GameRecordDao {
+    -records: List<GameRecord>
+    -static final FILE_NAME: String = "game_records.dat"
+    +GameRecordDaoImpl()
+    +addRecord(record: GameRecord): void
+    +removeRecord(id: int): void
+    +getAllRecords(): List<GameRecord>
+    +getRecordsByInitialDifficulty(initialDifficulty: int): List<GameRecord>
+    +clearAllRecords(): void
+    -loadRecords(): List<GameRecord>
+    -saveRecords(): void
+    -reorderRecords(): void
+}
+
+class GameRecord {
+    -id: int
+    -name: String
+    -score: int
+    -enemiesKilled: int
+    -gameTime: long
+    -recordTime: long
+    -difficulty: int
+    -initialDifficulty: int
+    +getId(): int
+    +setId(id: int): void
+    +getName(): String
+    +setName(name: String): void
+    +getScore(): int
+    +setScore(score: int): void
+    +getInitialDifficulty(): int
+    +setInitialDifficulty(initialDifficulty: int): void
+}
+
+class RankingPanel {
+    -gameRecordDao: GameRecordDao
+    +showRecords(difficulty: int): void
+}
+
+class GameOverPanel {
+    -gameRecordDao: GameRecordDao
+    +saveRecord(name: String, score: int): void
+}
+
+GameRecordDao <|.. GameRecordDaoImpl
+
+GameRecordDaoImpl ..> GameRecord : 操作
+
+RankingPanel ..> GameRecordDao : 使用
+GameOverPanel ..> GameRecordDao : 使用
+
+note left of GameRecordDao
+  数据访问对象接口
+  定义游戏记录的增删改查操作
+end note
+
+note right of GameRecordDaoImpl
+  DAO实现类
+  使用文件持久化存储游戏记录
+  支持按难度筛选和排序
+end note
+
+note bottom of GameRecord
+  游戏记录实体类
+  实现Serializable接口支持序列化
+  包含玩家名、分数、难度等信息
+end note
+
+@enduml
