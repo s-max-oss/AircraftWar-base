@@ -107,7 +107,11 @@ public class SoundManager {
 
     public void playGameOverSound() {
         stopBGM();
-        stopBossBGM();
+        if (bossBgmClip != null && bossBgmClip.isRunning()) {
+            bossBgmClip.stop();
+            bossBgmClip.setFramePosition(0);
+        }
+        isBossActive = false;
         playSound(gameOverClip);
     }
 
